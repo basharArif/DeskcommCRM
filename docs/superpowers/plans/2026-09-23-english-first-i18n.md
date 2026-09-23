@@ -158,13 +158,13 @@ CLAUDE.md "Testes"), `pnpm build`. UI unchanged in pt-BR/es.
 
 ### Phase 3 — Translation tooling
 
-- [ ] `pnpm i18n:faltando en` → JSON of missing keys, each with pt + es reference, grouped by
+- [x] `pnpm i18n:faltando en` → JSON of missing keys, each with pt + es reference, grouped by
       screen, in batches of ~200.
-- [ ] `pnpm i18n:aplicar en <batch.json>` → merges into `en.json`, rejects empty values,
+- [x] `pnpm i18n:aplicar en <batch.json>` → merges into `en.json`, rejects empty values,
       duplicates, and keys that no longer exist; keeps file sorted for clean diffs.
-- [ ] `pnpm i18n:cobertura` → % per language and **per screen** (upstream asked for per-screen,
+- [x] `pnpm i18n:cobertura` → % per language and **per screen** (upstream asked for per-screen,
       not per-key: "Inbox is in Portuguese" matters more than "92%").
-- [ ] Glossary `docs/i18n/glossary-en.md`: fixed terms (lead, deal, pipeline, stage, handoff,
+- [x] Glossary `docs/i18n/glossary-en.md`: fixed terms (lead, deal, pipeline, stage, handoff,
       inbox, agent/attendant, follow-up, won/lost, tenant=organization, "Central"…). Every
       translator agent reads it first. Placeholders (`{nome}`, `%s`) and ICU plurals must survive.
 
@@ -268,3 +268,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 | 2026-09-23 | Phase 0 — Prep & inventory | feat/i18n-phase-0-inventory | Synced upstream/main@16a570096, measured 5,570 distinct UI keys, 7,333 dictionary entries, created scripts/i18n-inventario.ts and docs/i18n/inventory-en.md |
 | 2026-09-23 | Phase 1 — Foundation: `en` hidden | feat/i18n-phase-1-foundation | Registered `en` (`em_construcao`), created `catalogos.ts` JSON loader, wired `traduzir()`, added `date-fns` locale, parameterized screen coverage gate over registry levels |
 | 2026-09-23 | Phase 2 — Numbers & money | feat/i18n-phase-2-numbers | Added `formatarNumero`/`formatarMoeda` in `lib/i18n/numeros.ts`, `hooks/i18n/useFormatarNumero.ts`, replaced all UI hardcoded pt-BR formatters, created AST gate `i18n-o-numero-segue-o-idioma.test.ts` |
+| 2026-09-24 | Phase 3 — Translation tooling | feat/i18n-phase-3-tooling | `i18n:faltando` (batches of 200, `--saida=<dir>`, pt+es+tela per item), `i18n:aplicar` (sole writer of `en.json`; rejects empty, stale keys, conflicting duplicates, placeholder/ICU drift, glossary violations; idempotent), `i18n:cobertura` (per wave + per screen), `glossary-en.md`. 7,416 keys, 0 covered, 41 batches. typecheck/lint 0 errors; test:unit 11 failures in 3 files pre-existing (Upstash/VAPID env), verified on stash |
