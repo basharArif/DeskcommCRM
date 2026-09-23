@@ -84,6 +84,15 @@ export const REGISTRO_DE_IDIOMAS = [
     nivel: "em_construcao",
     mantenedor: null,
   },
+  {
+    codigo: "en",
+    nomeNativo: "English",
+    rotuloCurto: "EN",
+    tagBcp47: "en-US",
+    subtagsDoNavegador: ["en"],
+    nivel: "em_construcao",
+    mantenedor: "mantenedores do fork",
+  },
 ] as const satisfies readonly IdiomaRegistrado[];
 
 export type IdiomaDoRegistro = (typeof REGISTRO_DE_IDIOMAS)[number];

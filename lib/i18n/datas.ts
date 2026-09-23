@@ -1,4 +1,4 @@
-import { es, ptBR } from "date-fns/locale";
+import { enUS, es, ptBR } from "date-fns/locale";
 import type { Locale } from "date-fns";
 
 import { IDIOMA_PADRAO, type Idioma } from "./idiomas";
@@ -32,9 +32,10 @@ import { idiomaVisivelPorCodigo } from "./registro";
  * camada. `date-fns` sem `locale` cai no inglês, e uma tela em espanhol com
  * "Thursday" é o pior dos três mundos.
  */
-const LOCALE_DE_DATA: Record<Idioma, Locale> = {
+const LOCALE_DE_DATA: Record<Idioma | "en", Locale> = {
   "pt-BR": ptBR,
   es,
+  en: enUS,
 };
 
 /** O `Locale` do date-fns para quem está lendo. */

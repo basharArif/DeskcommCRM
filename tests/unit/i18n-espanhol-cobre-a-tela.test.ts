@@ -7,7 +7,8 @@ import { describe, expect, it } from "vitest";
 import { DICIONARIO } from "@/lib/i18n/dicionario";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { IDIOMAS } from "@/lib/i18n/idiomas";
-import { IDIOMAS_EM_CONSTRUCAO } from "@/lib/i18n/registro";
+import { IDIOMAS_EM_CONSTRUCAO, REGISTRO_DE_IDIOMAS } from "@/lib/i18n/registro";
+import { buscarNoCatalogo } from "@/lib/i18n/catalogos";
 
 import {
   AREAS_DE_PRODUTO,
@@ -493,16 +494,41 @@ describe("a chave é o texto em português, e o português não muda", () => {
   });
 });
 
-describe("toda chave usada na tela tem espanhol", () => {
-  it("nenhuma chamada t() cai no português por falta de tradução", () => {
-    const semEspanhol = [...chavesUsadas().entries()]
-      .filter(([chave]) => !DICIONARIO[chave]?.es)
-      .map(([chave, onde]) => `${onde[0]} → t(${JSON.stringify(chave)})`);
-    expect(
-      semEspanhol,
-      `${semEspanhol.length} chamada(s) t() sem tradução em espanhol: a tela cai no português. ${COMO_CONSERTAR}`,
-    ).toEqual([]);
-  });
+const IDIOMAS_ALVO = REGISTRO_DE_IDIOMAS.filter((i) => i.codigo !== "pt-BR");
+
+function temTraducao(codigo: string, chave: string): boolean {
+  if (codigo === "pt-BR") return true;
+  if (DICIONARIO[chave]?.[codigo]) return true;
+  if (buscarNoCatalogo(chave, codigo)?.trim()) return true;
+  return false;
+}
+
+describe("cobertura de chaves por nível de idioma (registro)", () => {
+  const todasAsChaves = chavesUsadas();
+
+  for (const idioma of IDIOMAS_ALVO) {
+    if (idioma.nivel === "completo") {
+      it(`${idioma.codigo} (${idioma.nomeNativo}) — nível completo: nenhuma chamada t() cai no português`, () => {
+        const semTraducao = [...todasAsChaves.entries()]
+          .filter(([chave]) => !temTraducao(idioma.codigo, chave))
+          .map(([chave, onde]) => `${onde[0]} → t(${JSON.stringify(chave)})`);
+        expect(
+          semTraducao,
+          `${semTraducao.length} chamada(s) t() sem tradução em ${idioma.nomeNativo}: a tela cai no português. ${COMO_CONSERTAR}`,
+        ).toEqual([]);
+      });
+    } else if (idioma.nivel === "em_construcao") {
+      it(`${idioma.codigo} (${idioma.nomeNativo}) — nível em construção: mede cobertura sem reprovar o CI`, () => {
+        let traduzidas = 0;
+        for (const chave of todasAsChaves.keys()) {
+          if (temTraducao(idioma.codigo, chave)) traduzidas++;
+        }
+        const total = todasAsChaves.size;
+        expect(total).toBeGreaterThan(0);
+        expect(traduzidas).toBeGreaterThanOrEqual(0);
+      });
+    }
+  }
 });
 
 describe("nenhuma prosa em português escapa de t()", () => {

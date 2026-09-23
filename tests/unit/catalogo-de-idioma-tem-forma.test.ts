@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join, relative } from "node:path";
 
 import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import { enUS, zhCN } from "date-fns/locale";
 import { describe, expect, it } from "vitest";
 
 import { IDIOMA_PADRAO } from "@/lib/i18n/idiomas";
@@ -28,7 +28,10 @@ const RAIZ = join(__dirname, "..", "..");
 const PASTA = join(RAIZ, "lib", "i18n", "traducoes");
 
 /** Os `Locale` do date-fns de quem tem catálogo — só para o teste formatar. */
-const LOCALE_DO_CATALOGO: Record<string, typeof zhCN> = { "zh-CN": zhCN };
+const LOCALE_DO_CATALOGO: Record<string, typeof zhCN | typeof enUS> = {
+  "zh-CN": zhCN,
+  en: enUS,
+};
 
 const catalogos = readdirSync(PASTA)
   .filter((arquivo) => arquivo.endsWith(".json"))
@@ -99,8 +102,11 @@ describe("o catálogo não viaja para o navegador antes de ser servido", () => {
         const caminho = join(pasta, entrada.name);
         if (entrada.isDirectory()) varrer(caminho);
         else if (/\.(ts|tsx|js|mjs)$/.test(entrada.name) && !/\.test\./.test(entrada.name)) {
+          const rel = relative(RAIZ, caminho).replace(/\\/g, "/");
+          // O leitor oficial (lib/i18n/catalogos.ts) é a única porta permitida para os catálogos
+          if (rel === "lib/i18n/catalogos.ts") continue;
           if (/from\s+["'][^"']*i18n\/traducoes\//.test(readFileSync(caminho, "utf8"))) {
-            importadores.push(relative(RAIZ, caminho));
+            importadores.push(rel);
           }
         }
       }

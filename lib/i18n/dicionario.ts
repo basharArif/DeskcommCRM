@@ -32,9 +32,10 @@
  * do que estava.
  */
 import type { Idioma } from "./idiomas";
+import { buscarNoCatalogo } from "./catalogos";
 
 /** `pt-BR` não aparece: é a chave. Só o que DIFERE precisa de linha. */
-type Traducoes = Record<string, Partial<Record<Exclude<Idioma, "pt-BR">, string>>>;
+type Traducoes = Record<string, Partial<Record<Exclude<Idioma, "pt-BR"> | string, string>>>;
 
 export const DICIONARIO: Traducoes = {
   "Sobre a empresa": { es: "Sobre la empresa" },
@@ -11589,7 +11590,11 @@ export const DICIONARIO: Traducoes = {
  * português, que é exatamente o comportamento de antes desta feature. Uma
  * tradução parcial não pode deixar a tela PIOR do que estava.
  */
-export function traduzir(texto: string, idioma: Idioma): string {
+export function traduzir(texto: string, idioma: Idioma | string): string {
   if (idioma === "pt-BR") return texto;
-  return DICIONARIO[texto]?.[idioma] ?? texto;
+  return (
+    DICIONARIO[texto]?.[idioma as Exclude<Idioma, "pt-BR">] ??
+    buscarNoCatalogo(texto, idioma) ??
+    texto
+  );
 }

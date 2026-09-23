@@ -131,19 +131,16 @@ first — repo doctrine "Higiene de branches"), its own commits, green gates, me
 
 ### Phase 1 — Foundation: `en` exists but is hidden
 
-- [ ] Add `en` to `REGISTRO_DE_IDIOMAS`: `nomeNativo: "English"`, `rotuloCurto: "EN"`,
-      `tagBcp47: "en-US"` ⚠️ (or `en`), `subtagsDoNavegador: ["en"]`, `nivel: "em_construcao"`.
-- [ ] JSON catalog loader: `traduzir()` resolves `DICIONARIO[text]?.[lang]` → `catalog[lang][text]`
-      → `text`. Loads every `lib/i18n/traducoes/<code>.json` (also wakes up zh-CN).
-      Measure client bundle impact (`pnpm build` output) — if a 5k-entry JSON per language is
-      too heavy for the client, load only the active language (server passes the one catalog
-      into `IdiomaProvider`).
-- [ ] Types: `Traducoes` must allow `en` without forcing entries (already `Partial`).
-- [ ] Level-aware gate: `i18n-espanhol-cobre-a-tela` stays blocking for `completo` languages;
-      for `em_construcao` it only **reports** coverage. Parametrize over the registry, not `?.es`.
-- [ ] `LOCALE_DE_DATA` gets `en` → `enUS` from `date-fns/locale` (compiler will demand it only
-      once `en` is visible — decide whether to add early).
-- [ ] Empty `lib/i18n/traducoes/en.json` (`{}`).
+- [x] Add `en` to `REGISTRO_DE_IDIOMAS`: `nomeNativo: "English"`, `rotuloCurto: "EN"`,
+      `tagBcp47: "en-US"`, `subtagsDoNavegador: ["en"]`, `nivel: "em_construcao"`.
+- [x] JSON catalog loader: `traduzir()` resolves `DICIONARIO[text]?.[lang]` → `catalog[lang][text]`
+      → `text`. Loads `lib/i18n/traducoes/<code>.json` via official loader `lib/i18n/catalogos.ts`.
+      Verified client bundle impact with `pnpm build` (Next 16 Turbopack).
+- [x] Types: `Traducoes` allows `en` without forcing entries (already `Partial`).
+- [x] Level-aware gate: `i18n-espanhol-cobre-a-tela` stays blocking for `completo` languages;
+      for `em_construcao` it only **reports** coverage. Parameterized over `REGISTRO_DE_IDIOMAS`.
+- [x] `LOCALE_DE_DATA` gets `en` → `enUS` from `date-fns/locale`.
+- [x] Empty `lib/i18n/traducoes/en.json` (`{}`).
 
 **Verify:** `pnpm typecheck && pnpm lint && pnpm test:unit` (full suite, log protocol from
 CLAUDE.md "Testes"), `pnpm build`. UI unchanged in pt-BR/es.
@@ -267,3 +264,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 |---|---|---|---|
 | 2026-09-23 | plan written | — | this file |
 | 2026-09-23 | Phase 0 — Prep & inventory | feat/i18n-phase-0-inventory | Synced upstream/main@16a570096, measured 5,570 distinct UI keys, 7,333 dictionary entries, created scripts/i18n-inventario.ts and docs/i18n/inventory-en.md |
+| 2026-09-23 | Phase 1 — Foundation: `en` hidden | feat/i18n-phase-1-foundation | Registered `en` (`em_construcao`), created `catalogos.ts` JSON loader, wired `traduzir()`, added `date-fns` locale, parameterized screen coverage gate over registry levels |
