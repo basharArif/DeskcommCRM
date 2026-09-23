@@ -55,29 +55,21 @@ export function parseReaisToCents(input: string): number | null {
   return Math.round(n * 100);
 }
 
+import { resolverTagBcp47 } from "@/lib/i18n/numeros";
+
 /** Centavos → "R$ 249,90". Para eco na tela do que foi entendido. */
-export function formatCentsBRL(cents: number): string {
-  return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+export function formatCentsBRL(cents: number, idiomaOuTag?: string | null): string {
+  const tag = resolverTagBcp47(idiomaOuTag);
+  return (cents / 100).toLocaleString(tag, { style: "currency", currency: "BRL" });
 }
 
 /**
- * Centavos de DÓLAR → "US$ 249,90". Para todo número que sai de
- * `llm_calls.cost_cents` / `ai_invocations.cost_cents`.
- *
- * ⚠️ EXISTE PORQUE O NÚMERO É DÓLAR E SETE TELAS O ESCREVIAM EM REAL.
- * `lib/agent-engine/edge/llm/pricing.ts` cota o provedor em USD e grava centavo
- * de USD; formatar em BRL fazia o dono do negócio ler um valor ~5x menor do que
- * o que estava sendo cobrado dele — e, depois que o teto passou a vincular,
- * armar um limite ~5x maior do que pensava. A conversão de moeda NÃO é feita
- * (exigiria fonte de câmbio, dependência externa nova num produto self-host):
- * o que muda é o rótulo dizer a unidade real.
- *
- * Vírgula decimal porque a frase é pt-BR; "US$" porque a moeda é dólar. É a
- * mesma escolha de `emDolares` em `lib/agent-engine/edge/llm/orcamento.ts` —
- * mas ali ela não pode importar daqui (o módulo é do engine e roda no worker).
+ * Centavos de DÓLAR → "US$ 249,90" (pt-BR/es) ou "$249.90" (en).
+ * Para todo número que sai de `llm_calls.cost_cents` / `ai_invocations.cost_cents`.
  */
-export function formatCentsUSD(cents: number): string {
-  return ((cents ?? 0) / 100).toLocaleString("pt-BR", { style: "currency", currency: "USD" });
+export function formatCentsUSD(cents: number, idiomaOuTag?: string | null): string {
+  const tag = resolverTagBcp47(idiomaOuTag);
+  return ((cents ?? 0) / 100).toLocaleString(tag, { style: "currency", currency: "USD" });
 }
 
 /**
@@ -167,8 +159,9 @@ const formatadores = new Map<string, Intl.NumberFormat>();
  */
 const LOCALE_DA_MOEDA_SEM_PAIS: Readonly<Record<string, string>> = { EUR: "pt-PT" };
 
-function formatadorDa(moeda: string): Intl.NumberFormat {
-  const cacheado = formatadores.get(moeda);
+function formatadorDa(moeda: string, opcoes?: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const chave = opcoes ? `${moeda}:${JSON.stringify(opcoes)}` : moeda;
+  const cacheado = formatadores.get(chave);
   if (cacheado) return cacheado;
 
   let locale = LOCALE_DA_MOEDA_SEM_PAIS[moeda] ?? "en-US";
@@ -182,8 +175,8 @@ function formatadorDa(moeda: string): Intl.NumberFormat {
     }
   }
 
-  const novo = new Intl.NumberFormat(locale, { style: "currency", currency: moeda });
-  formatadores.set(moeda, novo);
+  const novo = new Intl.NumberFormat(locale, { style: "currency", currency: moeda, ...opcoes });
+  formatadores.set(chave, novo);
   return novo;
 }
 
@@ -197,19 +190,25 @@ function formatadorDa(moeda: string): Intl.NumberFormat {
  * inteira. As cinco cópias que esta função substitui tinham `try/catch`
  * (ex.: `CRMSidePanel.tsx:201`); esta usa a mesma rede.
  */
-export function formatCents(cents: number, moeda: string): string {
+export function formatCents(
+  cents: number | null | undefined,
+  moeda?: string | null,
+  opcoes?: Intl.NumberFormatOptions,
+): string {
+  if (cents == null) return "—";
+  const codMoeda = moeda || MOEDA_PADRAO;
   const valor = (cents ?? 0) / 100;
   try {
-    const nf = formatadorDa(moeda);
+    const nf = formatadorDa(codMoeda, opcoes);
     // O tipo do `Intl` deixa o campo opcional; 2 é o que a esmagadora maioria
     // das moedas usa e é o que o código fazia em duro antes desta função existir.
-    const casas = nf.resolvedOptions().maximumFractionDigits ?? 2;
+    const casas = opcoes?.maximumFractionDigits ?? nf.resolvedOptions().maximumFractionDigits ?? 2;
     return nf.format((cents ?? 0) / 10 ** casas);
   } catch {
     // Moeda que o `Intl` recusa: mostra o número certo em vez de travar a
     // tela. Sem `style: "currency"` porque é justamente o `currency` inválido
     // que lançou — um código de moeda cru é mais honesto que esconder o erro.
-    return `${moeda || "?"} ${valor.toFixed(2)}`;
+    return `${moeda || "?"} ${valor.toFixed(opcoes?.maximumFractionDigits ?? 2)}`;
   }
 }
 

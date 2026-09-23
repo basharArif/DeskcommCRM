@@ -58,15 +58,10 @@ interface Props {
 
 type Modo = BudgetStatus["enforcement_mode"];
 
-/**
- * DÓLAR, e não real. `llm_calls.cost_cents` é centavo de USD — é o que o
- * provedor cobra. Formatar em BRL fazia o dono do negócio ler um teto ~5x maior
- * do que o que estava armando.
- */
-const usd = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "USD" });
+import { formatCentsUSD } from "@/lib/money";
 
-function fmtCents(cents: number): string {
-  return usd.format((cents ?? 0) / 100);
+function fmtCents(cents: number, tag: string = "pt-BR"): string {
+  return formatCentsUSD(cents, tag);
 }
 
 function fmtData(iso: string, idioma: string): string {
@@ -117,7 +112,7 @@ function frameDoEstado(
     return `${t("A parada começa a valer em")} ${fmtData(efetivoEm, tagDoIdioma)}. ${t("Até lá, só avisamos.")}`;
   }
   return (
-    `${t("A IA para de responder ao chegar em")} ${fmtCents(status.monthly_limit_cents)}. ` +
+    `${t("A IA para de responder ao chegar em")} ${fmtCents(status.monthly_limit_cents, tagDoIdioma)}. ` +
     t(
       "Quando isso acontecer, as conversas em andamento vão para a fila de atendimento humano e voltam ao automático uma a uma, pelo cabeçalho de cada conversa.",
     )
@@ -233,11 +228,11 @@ export function BudgetCard({ initialData, isAdmin }: Props) {
         </div>
         <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
           <span>
-            <strong>{fmtCents(consumed)}</strong>
+            <strong>{fmtCents(consumed, tagDoIdioma)}</strong>
             {limit > 0 ? (
               <>
                 {" "}
-                {t("gastos de")} {fmtCents(limit)}
+                {t("gastos de")} {fmtCents(limit, tagDoIdioma)}
               </>
             ) : (
               <> {t("gastos este mês")}</>
@@ -313,6 +308,7 @@ function OpcaoDeModo({
 
 function EditBudgetDialog({ status }: { status: BudgetStatus }) {
   const t = useT();
+  const tagDoIdioma = useTagDeIdioma();
   const [open, setOpen] = useState(false);
   const update = useUpdateBudget();
   const [limitUsd, setLimitUsd] = useState<string>(
@@ -407,7 +403,7 @@ function EditBudgetDialog({ status }: { status: BudgetStatus }) {
               atual={modo}
               onPick={setModo}
               disabled={update.isPending}
-              titulo={`${t("Me avisar ao passar de")} ${limiarEfetivo}% ${t("de")} ${fmtCents(tetoParaCopy)}`}
+              titulo={`${t("Me avisar ao passar de")} ${limiarEfetivo}% ${t("de")} ${fmtCents(tetoParaCopy, tagDoIdioma)}`}
               corpo={t("Abrimos um aviso na Central de avisos. A IA continua respondendo normalmente.")}
             />
             <OpcaoDeModo
@@ -415,7 +411,7 @@ function EditBudgetDialog({ status }: { status: BudgetStatus }) {
               atual={modo}
               onPick={setModo}
               disabled={update.isPending || pularDegrau}
-              titulo={`${t("Parar a IA ao chegar em")} ${fmtCents(tetoParaCopy)}`}
+              titulo={`${t("Parar a IA ao chegar em")} ${fmtCents(tetoParaCopy, tagDoIdioma)}`}
               corpo={
                 t(
                   'As conversas em andamento vão para a fila de atendimento humano — ninguém fica sem resposta, mas alguém precisa responder. Cada uma volta ao automático pelo botão "Devolver ao automático" no cabeçalho dela.',
@@ -457,7 +453,7 @@ function EditBudgetDialog({ status }: { status: BudgetStatus }) {
             {tetoInsuficiente && (
               <p className="text-xs text-destructive">
                 {t("Para avisar ou parar no limite, ele precisa ser de pelo menos")}{" "}
-                {fmtCents(PISO_DE_TETO_CENTS)} {t("por mês. Abaixo disso não é orçamento de")}{" "}
+                {fmtCents(PISO_DE_TETO_CENTS, tagDoIdioma)} {t("por mês. Abaixo disso não é orçamento de")}{" "}
                 {t(
                   'um atendimento — é erro de digitação. Se você só quer acompanhar o gasto sem limite, escolha "Só acompanhar".',
                 )}

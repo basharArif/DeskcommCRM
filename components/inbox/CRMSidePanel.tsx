@@ -241,16 +241,11 @@ function MarcarProximoPasso({ demandaId, onPronto }: { demandaId: string; onPron
   );
 }
 
+import { formatCents } from "@/lib/money";
+
 function formatMoney(cents: number | null, currency: string | null): string {
   if (cents == null) return "—";
-  const cur = currency ?? "BRL";
-  try {
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: cur }).format(
-      cents / 100,
-    );
-  } catch {
-    return `${(cents / 100).toFixed(2)} ${cur}`;
-  }
+  return formatCents(cents, currency ?? "BRL");
 }
 
 function shortDate(iso: string, locale: Locale): string {

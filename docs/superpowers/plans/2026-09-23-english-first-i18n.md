@@ -147,12 +147,14 @@ CLAUDE.md "Testes"), `pnpm build`. UI unchanged in pt-BR/es.
 
 ### Phase 2 — Numbers & money follow the language
 
-- [ ] Add `formatarNumero` / `formatarMoeda` in `lib/i18n/` (or extend `lib/money.ts`) taking
-      `Idioma` and using the registry `tagBcp47`.
-- [ ] Replace the ~38 hard-coded `"pt-BR"` number formatters. Add a unit gate that forbids
-      `toLocaleString("pt-BR"` / `NumberFormat("pt-BR"` outside the i18n layer (mirror
-      `i18n-a-data-segue-o-idioma.test.ts`).
-- [ ] Currency stays per org (`_cents` + ISO currency) — only the *formatting* changes.
+- [x] Add `formatarNumero` / `formatarMoeda` in `lib/i18n/` (and extend `lib/money.ts`) taking
+      `Idioma` / BCP-47 tag and using registry `tagBcp47`. Added `hooks/i18n/useFormatarNumero.ts`.
+- [x] Replaced hard-coded `"pt-BR"` number formatters in UI (`KanbanCard`, `LeadDossier`, `CRMSidePanel`,
+      `TokenCounter`, `media-utils`, `UsageChart`, `BudgetCard`, `UsageCharts`, `UsageTable`, `TenantOverview`,
+      `AgentForm`, `evolution/_client.tsx`, `usage/_client.tsx`, `ExecucoesDeIa`, `TabelaDeCampanhas`).
+- [x] Added unit gate `tests/unit/i18n-o-numero-segue-o-idioma.test.ts` that forbids
+      `toLocaleString("pt-BR"` / `NumberFormat("pt-BR"` in UI components outside the i18n layer.
+- [x] Currency stays per org (`_cents` + ISO currency) — only the *formatting* changes.
 
 ### Phase 3 — Translation tooling
 
@@ -265,3 +267,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 | 2026-09-23 | plan written | — | this file |
 | 2026-09-23 | Phase 0 — Prep & inventory | feat/i18n-phase-0-inventory | Synced upstream/main@16a570096, measured 5,570 distinct UI keys, 7,333 dictionary entries, created scripts/i18n-inventario.ts and docs/i18n/inventory-en.md |
 | 2026-09-23 | Phase 1 — Foundation: `en` hidden | feat/i18n-phase-1-foundation | Registered `en` (`em_construcao`), created `catalogos.ts` JSON loader, wired `traduzir()`, added `date-fns` locale, parameterized screen coverage gate over registry levels |
+| 2026-09-23 | Phase 2 — Numbers & money | feat/i18n-phase-2-numbers | Added `formatarNumero`/`formatarMoeda` in `lib/i18n/numeros.ts`, `hooks/i18n/useFormatarNumero.ts`, replaced all UI hardcoded pt-BR formatters, created AST gate `i18n-o-numero-segue-o-idioma.test.ts` |

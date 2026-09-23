@@ -46,18 +46,11 @@ interface KanbanCardProps {
   onOpen?: (leadId: string) => void;
 }
 
+import { formatCents } from "@/lib/money";
+
 function formatBRL(cents: number | null, currency: string | null): string | null {
   if (cents == null) return null;
-  const code = currency ?? "BRL";
-  try {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: code,
-      maximumFractionDigits: 0,
-    }).format(cents / 100);
-  } catch {
-    return `${(cents / 100).toFixed(2)} ${code}`;
-  }
+  return formatCents(cents, currency, { maximumFractionDigits: 0 });
 }
 
 /**

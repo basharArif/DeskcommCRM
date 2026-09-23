@@ -26,17 +26,11 @@ interface Props {
   ownerNames?: Map<string, string | null>;
 }
 
+import { formatCents } from "@/lib/money";
+
 function formatBRL(cents: number | null, currency: string | null): string {
   if (cents === null) return "—";
-  try {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: currency ?? "BRL",
-      maximumFractionDigits: 0,
-    }).format(cents / 100);
-  } catch {
-    return `R$ ${(cents / 100).toFixed(0)}`;
-  }
+  return formatCents(cents, currency ?? "BRL", { maximumFractionDigits: 0 });
 }
 
 /**
