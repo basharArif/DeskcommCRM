@@ -20,6 +20,8 @@ import { createClient } from "@supabase/supabase-js";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+import { IDIOMAS_VISIVEIS } from "../lib/i18n/registro";
+
 /** Lê env do processo; completa com .env / .env.local se rodando localmente. */
 function loadEnv(): Record<string, string> {
   const out: Record<string, string> = { ...process.env } as Record<string, string>;
@@ -52,10 +54,10 @@ const ORG_NAME = env.OWNER_ORG_NAME || "Minha Empresa";
  * todo mundo que o dono convidasse.
  *
  * Fecha para o padrão diante de qualquer valor desconhecido: um `.env` com
- * `APP_LOCALE=en` não pode derrubar a instalação nem escrever lixo no banco.
+ * `APP_LOCALE=xx` não pode derrubar a instalação nem escrever lixo no banco.
  */
-const IDIOMAS_SERVIDOS = ["pt-BR", "es"] as const;
-const APP_LOCALE = (IDIOMAS_SERVIDOS as readonly string[]).includes(
+const IDIOMAS_SERVIDOS: readonly string[] = IDIOMAS_VISIVEIS.map((idioma) => idioma.codigo);
+const APP_LOCALE = IDIOMAS_SERVIDOS.includes(
   (env.APP_LOCALE ?? "").trim(),
 )
   ? (env.APP_LOCALE as string).trim()

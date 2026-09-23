@@ -200,7 +200,7 @@ Per wave:
       to `lib/opt-out/deteccao.ts` with control phrases in `tests/unit/opt-out-deteccao.test.ts`
       — both levels (unambiguous / ambiguous), same rule used by ingestion and agent runtime.
       This is anti-ban critical; don't skip.
-- [ ] Seed data in `supabase/baseline.sql` (default pipeline/stage names, vocabulary): localize
+- [x] Seed data in `supabase/baseline.sql` (default pipeline/stage names, vocabulary): localize
       at **creation time** by org locale, not by rewriting existing rows. Any schema/function change
       = migration + baseline appendix + MANIFEST (repo "Migrations & Banco" doctrine), and `pnpm test:db`.
 - [ ] LGPD PDF: English version only if the owner wants it (it's a Brazilian legal document).
@@ -271,3 +271,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 | 2026-09-24 | Phase 3 — Translation tooling | feat/i18n-phase-3-tooling | `i18n:faltando` (batches of 200, `--saida=<dir>`, pt+es+tela per item), `i18n:aplicar` (sole writer of `en.json`; rejects empty, stale keys, conflicting duplicates, placeholder/ICU drift, glossary violations; idempotent), `i18n:cobertura` (per wave + per screen), `glossary-en.md`. 7,416 keys, 0 covered, 41 batches. typecheck/lint 0 errors; test:unit 11 failures in 3 files pre-existing (Upstash/VAPID env), verified on stash |
 | 2026-09-24 | Phase 4 — English catalog waves 0-6 (text only) | feat/i18n-phase-3-tooling | 7,416/7,416 keys in `en.json` (100%) via `i18n:aplicar`; QA fixes: tenant->organization, "Google Business Profile", business-vs-deal glossary exception, `i18n:aplicar` now preserves key edge whitespace. Browser proof and per-wave reviewer subagent NOT done (boxes stay open) |
 | 2026-09-24 | Phase 3+4 + Phase 5 partial | feat/i18n-phase-3-tooling | Tooling committed; en.json 7,416/7,416 keys, independently reviewed (76 fixes). Phase 5 slices: English opt-out vocab, invite e-mail, lead handoff notices, prompt scaffolding, Entrada/Saída context keys (`@@`). Open: browser proof, Central/cron texts, GoTrue mails, reentry/follow-up/niche templates, seed data (migration). |
+| 2026-09-24 | Phase 5 seed data | feat/i18n-phase-3-tooling | Migration 0392: `fn_seed_default_pipeline_for_org` + `fn_semear_tipos_de_agendamento` localize by `organizations.locale` (en only; pt/es identical, slugs unchanged); signup provisioning now writes user locale to the org. |

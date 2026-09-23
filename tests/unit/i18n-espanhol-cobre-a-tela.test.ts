@@ -483,11 +483,12 @@ describe("a chave é o texto em português, e o português não muda", () => {
     // `en-US` e nenhuma tradução existia — escolher não mudava uma letra.
     const outros = IDIOMAS.filter((i) => i !== "pt-BR");
     for (const idioma of outros) {
-      const comEsse = Object.values(DICIONARIO).filter((v) =>
+      const noDicionario = Object.values(DICIONARIO).filter((v) =>
         Object.prototype.hasOwnProperty.call(v, idioma),
-      );
+      ).length;
+      const noCatalogo = [...chavesUsadas().keys()].filter((c) => buscarNoCatalogo(c, idioma)?.trim()).length;
       expect(
-        comEsse.length,
+        noDicionario + noCatalogo,
         `o idioma "${idioma}" é oferecido mas não tem NENHUMA tradução no dicionário`,
       ).toBeGreaterThan(0);
     }
