@@ -355,3 +355,46 @@ describe("o runtime do agente usa a MESMA regra da ingestão", () => {
     expect(detectAmbiguousOptOut("posso sair antes das 15h?")).toBe(false);
   });
 });
+
+describe("inglês — mesma regra: verbo de cessação + objeto de comunicação", () => {
+  const PEDE_PARA_SAIR_EN = [
+    "STOP",
+    "Unsubscribe",
+    "QUIT",
+    "cancel",
+    "stop messaging me",
+    "Please stop texting me",
+    "don't text me anymore",
+    "do not contact me again",
+    "I don't want any more messages",
+    "no more emails",
+    "take me off your list",
+    "remove me from the mailing list",
+    "please unsubscribe me",
+    "I want to opt out",
+  ];
+  const NAO_E_OPT_OUT_EN = [
+    "can you stop by tomorrow?",
+    "please stop sending the invoice to the old address",
+    "I need to cancel my appointment",
+    "the pain won't stop",
+    "don't call me before 9am",
+    "what time do you end?",
+    "I want to quit smoking, can you help?",
+  ];
+
+  it.each(PEDE_PARA_SAIR_EN)("%j bloqueia", (frase) => {
+    expect(ehPedidoDeOptOut(frase)).toBe(true);
+  });
+
+  it.each(NAO_E_OPT_OUT_EN)("%j NÃO bloqueia", (frase) => {
+    expect(ehPedidoDeOptOut(frase)).toBe(false);
+  });
+
+  it("o ambíguo em inglês escala, mas não bloqueia", () => {
+    for (const frase of ["leave me alone", "I'm not interested anymore", "stop it"]) {
+      expect(ehOptOutProvavel(frase)).toBe(true);
+      expect(ehPedidoDeOptOut(frase)).toBe(false);
+    }
+  });
+});

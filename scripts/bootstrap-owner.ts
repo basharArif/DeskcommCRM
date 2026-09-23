@@ -52,14 +52,14 @@ const ORG_NAME = env.OWNER_ORG_NAME || "Minha Empresa";
  * todo mundo que o dono convidasse.
  *
  * Fecha para o padrão diante de qualquer valor desconhecido: um `.env` com
- * `APP_LOCALE=en` não pode derrubar a instalação nem escrever lixo no banco.
+ * `APP_LOCALE=xx` não pode derrubar a instalação nem escrever lixo no banco.
  */
-const IDIOMAS_SERVIDOS = ["pt-BR", "es"] as const;
+const IDIOMAS_SERVIDOS = ["pt-BR", "es", "en"] as const;
 const APP_LOCALE = (IDIOMAS_SERVIDOS as readonly string[]).includes(
   (env.APP_LOCALE ?? "").trim(),
 )
   ? (env.APP_LOCALE as string).trim()
-  : "pt-BR";
+  : "en";
 
 if (!SUPABASE_URL || !SERVICE_ROLE) {
   throw new Error("Faltam NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY.");

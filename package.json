@@ -42,7 +42,11 @@
     "local:status": "bash scripts/local-stack.sh status",
     "local:logs": "bash scripts/local-stack.sh logs",
     "dev:crons": "tsx --env-file=.env --env-file=.env.local scripts/dev-crons.ts",
-    "flywheel:judge": "tsx --env-file=.env --env-file=.env.local scripts/flywheel-judge-live.ts"
+    "flywheel:judge": "tsx --env-file=.env --env-file=.env.local scripts/flywheel-judge-live.ts",
+    "i18n:inventario": "tsx scripts/i18n-inventario.ts",
+    "i18n:faltando": "tsx scripts/i18n-faltando.ts",
+    "i18n:aplicar": "tsx scripts/i18n-aplicar.ts",
+    "i18n:cobertura": "tsx scripts/i18n-cobertura.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.16",

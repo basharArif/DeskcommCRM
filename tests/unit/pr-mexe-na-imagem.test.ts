@@ -104,6 +104,10 @@ describe("pr-mexe-na-imagem", () => {
   const SO_FORA_DA_IMAGEM = new Set([
     // seed das credenciais do E2E: roda no job de e2e, contra o Supabase local.
     "scripts/seed-e2e-credentials.ts",
+    // ferramentas de tradução (pnpm i18n:*): reusam o varredor de chaves de tests/, só rodam em dev.
+    "scripts/i18n-inventario.ts",
+    "scripts/i18n-faltando.ts",
+    "scripts/i18n-cobertura.ts",
   ]);
 
   it("nenhum arquivo que entra na imagem importa de pasta que o .dockerignore exclui", () => {

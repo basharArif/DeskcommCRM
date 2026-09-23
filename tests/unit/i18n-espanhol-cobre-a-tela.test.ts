@@ -8,7 +8,7 @@ import { DICIONARIO } from "@/lib/i18n/dicionario";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { IDIOMAS } from "@/lib/i18n/idiomas";
 import { IDIOMAS_EM_CONSTRUCAO, REGISTRO_DE_IDIOMAS } from "@/lib/i18n/registro";
-import { buscarNoCatalogo } from "@/lib/i18n/catalogos";
+import { buscarNoCatalogo, CATALOGOS } from "@/lib/i18n/catalogos";
 
 import {
   AREAS_DE_PRODUTO,
@@ -483,11 +483,12 @@ describe("a chave é o texto em português, e o português não muda", () => {
     // `en-US` e nenhuma tradução existia — escolher não mudava uma letra.
     const outros = IDIOMAS.filter((i) => i !== "pt-BR");
     for (const idioma of outros) {
-      const comEsse = Object.values(DICIONARIO).filter((v) =>
+      const noDicionario = Object.values(DICIONARIO).filter((v) =>
         Object.prototype.hasOwnProperty.call(v, idioma),
-      );
+      ).length;
+      const noCatalogo = Object.keys(CATALOGOS[idioma] ?? {}).length;
       expect(
-        comEsse.length,
+        noDicionario + noCatalogo,
         `o idioma "${idioma}" é oferecido mas não tem NENHUMA tradução no dicionário`,
       ).toBeGreaterThan(0);
     }

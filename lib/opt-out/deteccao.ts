@@ -64,6 +64,12 @@ export const PALAVRAS_DE_OPT_OUT: ReadonlySet<string> = new Set([
   "descadastrar",
   "remover",
   "unsubscribe",
+  // inglês — as palavras-chave que os provedores de SMS/WhatsApp tratam como padrão.
+  "stopall",
+  "optout",
+  "quit",
+  "end",
+  "cancel",
   // ── espanhol ──────────────────────────────────────────────────────────────
   //
   // `baja` não é preferência de vocabulário: é a palavra que a PLANTILLA pede.
@@ -134,7 +140,9 @@ const OBJETOS_NAO_COMUNICATIVOS =
   "pedido|pedidos|encomenda|encomendas|pacote|pacotes|entrega|entregas|" +
   "fatura|faturas|boleto|boletos|cobranca|cobrancas|produto|produtos|" +
   "paquete|paquetes|envio|envios|factura|facturas|boleta|boletas|" +
-  "cobro|cobros|producto|productos|pauta|pautas|presupuesto|presupuestos";
+  "cobro|cobros|producto|productos|pauta|pautas|presupuesto|presupuestos|" +
+  "order|orders|invoice|invoices|package|packages|shipment|shipments|delivery|deliveries|" +
+  "quote|quotes|bill|bills|payment|payments|ads|ad";
 
 /**
  * Determinantes que podem vir entre o verbo e o objeto não comunicativo —
@@ -148,7 +156,8 @@ const OBJETOS_NAO_COMUNICATIVOS =
  */
 const DETERMINANTES_DE_OBJETO =
   "o|a|os|as|el|los|la|las|meu|minha|meus|minhas|seu|sua|seus|suas|" +
-  "mi|mis|tu|tus|esse|essa|esses|essas|ese|esa|esos|esas|nesse|nessa";
+  "mi|mis|tu|tus|esse|essa|esses|essas|ese|esa|esos|esas|nesse|nessa|" +
+  "the|my|our|your|that|this|those|these";
 
 /**
  * Pedidos INEQUÍVOCOS de descadastro escritos por extenso. Todos exigem o objeto
@@ -159,6 +168,8 @@ const DETERMINANTES_DE_OBJETO =
  * positivo entra. As frases de controle vivem em
  * `tests/unit/opt-out-deteccao.test.ts` e reprovam o CI.
  */
+const VERBOS_EN = "messag|text|contact|email|call|writ|send|bother|ping";
+
 const FRASES_DE_OPT_OUT: readonly RegExp[] = [
   // "pare de me mandar", "parar de receber", "para de mandar mensagem" — mas
   // NÃO "pare de mandar o pedido nesse endereço": o padrão ancorava só no
@@ -265,6 +276,21 @@ const FRASES_DE_OPT_OUT: readonly RegExp[] = [
   /\b(?:sacame|sacar|quitame|quitar|borrame|borrar|elimina|eliminame)\s+de\s+(?:la\s+)?lista\b(?!\s+de\s+(?:espera|precios|invitados))/u,
   /\bsalir\s+de\s+(?:la\s+)?lista\b(?!\s+de\s+(?:espera|precios|invitados))/u,
   /\bcancelar\s+(?:la\s+)?(?:suscripcion|inscripcion)\b/u,
+  // ── inglês — mesma âncora: verbo de cessação + objeto de comunicação ──────
+  new RegExp(
+    `\\bstop\\s+(?:(?:${VERBOS_EN})ing)(?:\\s+(?:me|us))?\\b` +
+      `(?!\\s+(?:${DETERMINANTES_DE_OBJETO})?\\s*(?:${OBJETOS_NAO_COMUNICATIVOS})\\b)`,
+    "u",
+  ),
+  new RegExp(
+    `\\b(?:do\\s+not|dont|don[\u2019']?t)\\s+(?:${VERBOS_EN})\\s+(?:me|us)\\s+(?:any\\s*more|again|anymore)\\b`,
+    "u",
+  ),
+  /\b(?:i\s+)?(?:do\s+not|dont|don[\u2019']?t)\s+want\s+(?:to\s+receive\s+)?(?:any\s+)?(?:more\s+)?(?:messages?|texts?|emails?|calls?|notifications?|marketing|promotions?)(?:\s+from\s+(?:you|this|your))?(?:\s+(?:any\s*more|anymore))?\b/u,
+  /\bno\s+more\s+(?:messages?|texts?|emails?|calls?|marketing|promotions?)\b/u,
+  /\b(?:take|remove|delete|drop|get)\s+me\s+(?:off|from|out\s+of)\s+(?:of\s+)?(?:the\s+|your\s+|this\s+|that\s+)?(?:mailing\s+|contact\s+|marketing\s+)?list\b/u,
+  /\bunsubscrib\w*\b/u,
+  /\bopt(?:\s|-)?(?:me\s+)?out\b/u,
 ];
 
 /**
@@ -304,6 +330,10 @@ const FRASES_AMBIGUAS_DE_OPT_OUT: readonly RegExp[] = [
   /\b(?:ya\s+no\s+me\s+interesa|no\s+me\s+interesa\s+mas)\b/u,
   /\b(?:ya\s+basta|basta\s+ya)\b/u,
   /\bno\s+me\s+molest(?:e|en|es)\b/u,
+  /\bleave\s+me\s+alone\b/u,
+  /\bstop\s+it\b/u,
+  /\b(?:i\s+)?(?:already\s+)?(?:told|said)\s+(?:you\s+)?(?:that\s+)?i(?:\s+am|m|\u2019m|'m)?\s*not\s+interested\b/u,
+  /\b(?:not\s+interested\s+(?:any\s*more|anymore)|no\s+longer\s+interested)\b/u,
 ];
 
 /** A mensagem inteira é a palavra-chave (ignorando pontuação e emoji de borda). */
