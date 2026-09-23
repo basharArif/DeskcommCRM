@@ -981,8 +981,25 @@ async function retrieveContext(input: RetrieveInput): Promise<RagHit[]> {
 // `model` chega resolvido de fora (ver o guard em processMessageReceived):
 // `ctx.agent.model` continua sendo a STRING canônica, porque é ela que vai para
 // o custo e para a auditoria em ai_invocations; o que executa é o provider.
+async function idiomaDaOrg(organizationId: string): Promise<string> {
+  try {
+    const { data } = await createAdminClient()
+      .from("organizations")
+      .select("locale")
+      .eq("id", organizationId)
+      .maybeSingle();
+    return (data as { locale?: string | null } | null)?.locale ?? "pt-BR";
+  } catch {
+    return "pt-BR";
+  }
+}
+
 async function invokeBot(ctx: BotContext, model: LanguageModel): Promise<BotResponse> {
-  const renderedSystem = renderSystemPrompt(ctx.agent.system_prompt, ctx);
+  const renderedSystem = renderSystemPrompt(
+    ctx.agent.system_prompt,
+    ctx,
+    await idiomaDaOrg(ctx.organization_id),
+  );
   const cfg = gatewayConfig();
   const headers = cfg ? gatewayHeaders({ organizationId: ctx.organization_id }) : undefined;
 

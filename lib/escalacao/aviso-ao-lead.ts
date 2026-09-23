@@ -51,6 +51,8 @@
 
 import { createHash } from "node:crypto";
 
+import type { Idioma } from "@/lib/i18n/idiomas";
+
 import type { QuemPodeAssumir } from "./disponibilidade";
 
 /**
@@ -156,6 +158,50 @@ const FECHOS = {
   ],
 } as const;
 
+/** Só `en` tem redação própria; pt-BR e es seguem com o texto em português. */
+const ABERTURAS_EN: Record<MotivoDoAviso, readonly string[]> = {
+  suspeita_de_opt_out: [
+    "Understood. I'll stop sending you automated messages here.",
+    "Got it, noted: no more automated messages to this number.",
+    "Okay! I'm ending automated sends on this channel right now.",
+  ],
+  pediu_humano: [
+    "Of course! I'm getting someone from the team to talk with you.",
+    "No problem, I just alerted a person on the team to pick this up from here.",
+    "Sure thing. I've passed your conversation to a human agent.",
+  ],
+  orcamento_de_ia: [
+    "I'm handing your conversation over to a person on the team.",
+    "From here on, someone from the team will continue with you.",
+    "I'm transferring this chat to a human agent.",
+  ],
+  outro: [
+    "This one is better handled by a person. I've already alerted the team.",
+    "I'd rather not risk it here: I've passed your request to a human agent.",
+    "I'll ask someone on the team to look into this with you.",
+  ],
+};
+
+const FECHOS_EN = {
+  sem_equipe: [
+    "Your request is on record and the team will reply as soon as possible.",
+    "I've noted everything down; we'll get back to you when we can.",
+    "It's logged on our side, and someone will answer at the first opportunity.",
+  ],
+  fora_de_expediente: [
+    "Nobody is available right now, but your request has been recorded.",
+    "No one is free at the moment; I left your request noted for the team.",
+    "There is no agent available at this moment, so your chat joined the queue.",
+  ],
+  com_equipe: [
+    "Just hang on a moment here in the chat.",
+    "Stay right here and they'll reply shortly.",
+    "Please wait a moment in this conversation.",
+  ],
+} as const;
+
+const ENCERRO_OPT_OUT_EN = "I've forwarded your request to a person on the team to confirm.";
+
 /**
  * Variante DETERMINÍSTICA por lead: sha256(lead_id) → uint32 → módulo.
  *
@@ -186,22 +232,25 @@ export function textoDoAviso(
   motivo: MotivoDoAviso,
   quem: QuemPodeAssumir | null,
   leadId: string,
+  idioma: Idioma | string = "pt-BR",
 ): string {
-  const abertura = variante(leadId, ABERTURAS[motivo]);
+  const en = idioma === "en";
+  const abertura = variante(leadId, (en ? ABERTURAS_EN : ABERTURAS)[motivo]);
 
   if (motivo === "suspeita_de_opt_out") {
     // Sem fecho de expediente: quem pediu para parar não está esperando
     // atendimento, então "aguarde um instante" seria a resposta errada à
     // pergunta que ele fez.
-    return `${abertura} Encaminhei seu pedido para uma pessoa da equipe confirmar.`;
+    return `${abertura} ${en ? ENCERRO_OPT_OUT_EN : "Encaminhei seu pedido para uma pessoa da equipe confirmar."}`;
   }
 
+  const fechos = en ? FECHOS_EN : FECHOS;
   const fecho =
     quem === null || quem.total === 0
-      ? variante(leadId, FECHOS.sem_equipe)
+      ? variante(leadId, fechos.sem_equipe)
       : quem.disponiveis === 0
-        ? variante(leadId, FECHOS.fora_de_expediente)
-        : variante(leadId, FECHOS.com_equipe);
+        ? variante(leadId, fechos.fora_de_expediente)
+        : variante(leadId, fechos.com_equipe);
 
   return `${abertura} ${fecho}`;
 }

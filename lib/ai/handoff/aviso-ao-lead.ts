@@ -53,6 +53,7 @@ import type {
   MotivoDoAviso as MotivoDoAvisoDaPassagem,
 } from "@/lib/escalacao/passagem";
 import type { QuemPodeAssumir } from "@/lib/escalacao/disponibilidade";
+import { normalizarIdioma, type Idioma } from "@/lib/i18n/idiomas";
 import { logger } from "@/lib/logger";
 
 /** Ator do envio — é o automático falando, não uma pessoa. */
@@ -101,6 +102,19 @@ const CODIGO_DO_ERRO: Readonly<Record<string, MotivoDoAvisoDaPassagem>> = {
  * respondendo a alguém que não sabia que ele vinha. Agora o desfecho é lido do
  * `status` da mensagem devolvida, que é o único lugar onde ele existe.
  */
+async function idiomaDaOrg(admin: SupabaseClient, organizationId: string): Promise<Idioma> {
+  try {
+    const { data } = await admin
+      .from("organizations")
+      .select("locale")
+      .eq("id", organizationId)
+      .maybeSingle();
+    return normalizarIdioma((data as { locale?: string | null } | null)?.locale ?? null);
+  } catch {
+    return "pt-BR";
+  }
+}
+
 export async function avisarLeadDoCrm(
   admin: SupabaseClient,
   input: AvisoDoCrmInput,
@@ -110,6 +124,7 @@ export async function avisarLeadDoCrm(
       motivoDoAviso(input.reason),
       await quemPodeAssumir(admin, input.organizationId),
       input.contactId,
+      await idiomaDaOrg(admin, input.organizationId),
     );
     const mensagem = await sendMessageHandler(
       admin,

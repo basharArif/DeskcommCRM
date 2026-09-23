@@ -474,7 +474,7 @@ describe("a chave é o texto em português, e o português não muda", () => {
    * escrito para ninguém contar duas vezes a mesma garantia.
    */
   it("traduzir() devolve a própria chave em português, para TODA chave", () => {
-    const mudaram = Object.keys(DICIONARIO).filter((k) => traduzir(k, "pt-BR") !== k);
+    const mudaram = Object.keys(DICIONARIO).filter((k) => traduzir(k, "pt-BR") !== k.split("@@")[0]);
     expect(mudaram).toEqual([]);
   });
 

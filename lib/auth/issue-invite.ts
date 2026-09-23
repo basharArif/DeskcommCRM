@@ -11,6 +11,7 @@ import { signInviteToken, INVITE_TTL_SECONDS } from "@/lib/auth/invite-token";
 import { buildInviteEmail } from "@/lib/email/templates/invite";
 import { sendEmail, type EmailDeliveryError, type TransporteDeEmail } from "@/lib/email/roteador";
 import { marcaDaSaida } from "@/lib/branding/saida";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 
 /** Link sempre existe, inclusive quando a instalação não configurou e-mail. */
 export async function issueInvite(input: {
@@ -70,6 +71,7 @@ export async function issueInvite(input: {
         role: input.role,
         expiresAt: new Date(exp * 1000),
         marca,
+        idioma: await idiomaDaOrganizacao(input.organizationId),
       });
       const result = await sendEmail({
         to: email,

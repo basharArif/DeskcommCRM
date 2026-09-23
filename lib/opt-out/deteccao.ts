@@ -103,6 +103,15 @@ export const PALAVRAS_DE_OPT_OUT: ReadonlySet<string> = new Set([
   "salir",
   "desuscribir",
   "desuscribirme",
+  // Convenção CTIA do inglês (STOP/END/CANCEL/QUIT/UNSUBSCRIBE); só vale como mensagem inteira.
+  "cancel",
+  "quit",
+  "end",
+  "optout",
+  "stopall",
+  "unsub",
+  "unsubscribed",
+  "remove",
 ]);
 
 /**
@@ -149,6 +158,23 @@ const OBJETOS_NAO_COMUNICATIVOS =
 const DETERMINANTES_DE_OBJETO =
   "o|a|os|as|el|los|la|las|meu|minha|meus|minhas|seu|sua|seus|suas|" +
   "mi|mis|tu|tus|esse|essa|esses|essas|ese|esa|esos|esas|nesse|nessa";
+
+const EN_COMUNICANDO =
+  "messaging|texting|emailing|e-mailing|contacting|calling|sending|writing|bothering|" +
+  "bugging|spamming|pestering|harassing|dming";
+
+const EN_DETERMINANTES =
+  "the|my|your|a|an|any|more|another|these|those|this|that|wrong|duplicate|duplicated|double|extra|same";
+
+const EN_OBJETOS_NAO_COMUNICATIVOS =
+  "orders?|packages?|parcels?|deliver(?:y|ies)|shipments?|invoices?|bills?|receipts?|" +
+  "quotes?|estimates?|charges?|payments?|products?|items?|refunds?";
+
+// Mesmo lookahead do pt/es: "stop sending me the wrong orders" é reclamação, não descadastro.
+const EN_SEM_OBJETO_DE_NEGOCIO =
+  `(?!\\s+(?:(?:${EN_DETERMINANTES})\\s+){0,3}(?:${EN_OBJETOS_NAO_COMUNICATIVOS})\\b)`;
+
+const EN_NEGACAO = "(?:do\\s+not|don['’]?t|dont)";
 
 /**
  * Pedidos INEQUÍVOCOS de descadastro escritos por extenso. Todos exigem o objeto
@@ -265,6 +291,39 @@ const FRASES_DE_OPT_OUT: readonly RegExp[] = [
   /\b(?:sacame|sacar|quitame|quitar|borrame|borrar|elimina|eliminame)\s+de\s+(?:la\s+)?lista\b(?!\s+de\s+(?:espera|precios|invitados))/u,
   /\bsalir\s+de\s+(?:la\s+)?lista\b(?!\s+de\s+(?:espera|precios|invitados))/u,
   /\bcancelar\s+(?:la\s+)?(?:suscripcion|inscripcion)\b/u,
+  // ── inglês ────────────────────────────────────────────────────────────────
+  //
+  // Mesma regra: verbo de cessação + "me" + verbo de comunicação. "stop by
+  // tomorrow", "stop the pain" e "I quit smoking" nunca casam.
+  new RegExp(
+    `\\b(?:stop|quit|cease)\\s+(?:${EN_COMUNICANDO})(?:\\s+to)?\\s+(?:me|us)\\b${EN_SEM_OBJETO_DE_NEGOCIO}`,
+    "u",
+  ),
+  /\b(?:stop|quit|cease)\s+(?:messaging|texting|emailing|e-mailing|contacting|calling)\s*[.!]*$/u,
+  /\b(?:stop|quit|cease)\s+(?:sending|texting|messaging|emailing)\s+(?:me\s+)?(?:these\s+|the\s+|any\s+|more\s+)*(?:messages?|texts?|emails?|e-mails?|whatsapps?|notifications?|promotions?|promos?|ads|advertising|spam|marketing|offers)\b/u,
+  // "don't text me again" — sem "again/anymore" seria "don't call me tomorrow", que é pedido de horário.
+  new RegExp(
+    `\\b${EN_NEGACAO}\\s+(?:you\\s+)?(?:message|text|email|e-mail|contact|call|write\\s+to|write|send|bother|spam|dm)\\s+(?:to\\s+)?(?:me|us)\\s+` +
+      `(?:(?:any\\s+)?more|again|anymore|ever\\s+again)\\b${EN_SEM_OBJETO_DE_NEGOCIO}(?!\\s+(?:until|till|before|after)\\b)` +
+      `(?![^.!?]*\\b(?:just|only|instead|rather)\\b[^.!?]*\\b(?:text|message|whatsapp|email|write)\\b)`,
+    "u",
+  ),
+  new RegExp(
+    `\\b(?:i\\s+)?(?:${EN_NEGACAO}|no\\s+longer)\\s+want\\s+(?:` +
+      `(?:to\\s+)?(?:receive|get)\\s+(?:(?:any|more|your|the)\\s+)*(?:messages?|texts?|emails?|e-mails?|whatsapps?|promotions?|marketing|spam|ads|notifications?|offers|anything)` +
+      `|(?:any\\s+)?more\\s+(?:messages|texts|emails|promotions|marketing|spam|ads|notifications|offers)` +
+      `|to\\s+hear\\s+from\\s+(?:you|y['’]?all)\\s+(?:anymore|any\\s+more|again|ever\\s+again))\\b`,
+    "u",
+  ),
+  /\b(?:remove|take|delete|drop|get|strike)\s+me\s+(?:off|from|out\s+of)\s+(?:of\s+)?(?:the\s+|your\s+|this\s+|that\s+|our\s+|any\s+|all\s+)?(?:(?:mailing|contact|call|sms|text|marketing|email|subscriber|distribution|broadcast)\s+)?(?:list|lists|database|contacts)\b(?!\s+of\s+(?:attendees|guests|invitees|participants))/u,
+  /\bdo\s+not\s+(?:call|contact|text|message|email)\s+list\b/u,
+  /\bunsubscribe(?:d)?\b/u,
+  /\bopt\s+me\s+out\b/u,
+  /\bopt[\s-]?out\s+of\s+(?:the\s+|your\s+|all\s+|these\s+)?(?:messages|texts|emails|newsletters?|marketing|communications?|notifications|promotions|sms|list)\b/u,
+  /\bi\s+(?:want|would\s+like|wish)\s+to\s+opt[\s-]?out\b/u,
+  // "cancel my subscription" nu é assunto de conta (SaaS), então exige o canal de mensagem.
+  /\bcancel(?:ling|ing)?\s+(?:my\s+|the\s+)?(?:newsletter|email|text|sms|message|marketing)\s+(?:subscription|signup)\b/u,
+  /\bcancel(?:ling|ing)?\s+(?:my\s+|the\s+)?(?:subscription|signup)\s+(?:to|for)\s+(?:the\s+|your\s+)?(?:messages|texts|emails|newsletter|updates|alerts|notifications|list)\b/u,
 ];
 
 /**
@@ -304,6 +363,16 @@ const FRASES_AMBIGUAS_DE_OPT_OUT: readonly RegExp[] = [
   /\b(?:ya\s+no\s+me\s+interesa|no\s+me\s+interesa\s+mas)\b/u,
   /\b(?:ya\s+basta|basta\s+ya)\b/u,
   /\bno\s+me\s+molest(?:e|en|es)\b/u,
+  // ── inglês ────────────────────────────────────────────────────────────────
+  //
+  // Âncoras de início/fim de mensagem: "go away", "enough" e "stop it" no meio de
+  // frase são vocabulário comum ("the pain will go away", "that's enough for me").
+  /\bleave\s+me\s+(?:alone|be)\b/u,
+  /^\s*(?:please\s+|just\s+)?(?:stop|quit)(?:\s+(?:it|this|that))?(?:\s+please)?\s*[.!?]*\s*$/u,
+  /^\s*(?:that['’]?s\s+)?enough(?:\s+already)?\s*[.!?]*\s*$/u,
+  /^\s*(?:please\s+)?go\s+away\b/u,
+  /\b(?:i\s+)?(?:already\s+)?(?:told|said)\s+(?:you\s+)?(?:already\s+)?(?:i(?:\s+am|['’]m)\s+)?(?:not\s+interested|no\s*[.!?]*$)/u,
+  /\b(?:not\s+interested\s+(?:anymore|any\s+more)|no\s+longer\s+interested(?:\s+(?:anymore|any\s+more))?\s*[.!?]*$)/u,
 ];
 
 /** A mensagem inteira é a palavra-chave (ignorando pontuação e emoji de borda). */

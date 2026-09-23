@@ -270,6 +270,111 @@ describe("espanhol — o ambíguo, que não existia", () => {
   });
 });
 
+const INGLES_PEDE_PARA_SAIR = [
+  "STOP",
+  "Stop.",
+  "STOP ALL",
+  "END",
+  "Cancel",
+  "QUIT",
+  "unsubscribe",
+  "Unsubscribe!",
+  "opt out",
+  "opt-out",
+  "stop messaging me",
+  "please stop texting me",
+  "stop sending me messages",
+  "stop sending me any more emails",
+  "stop calling me",
+  "stop bugging me",
+  "stop contacting",
+  "don't text me again",
+  "do not contact me anymore",
+  "don't message me any more",
+  "please don't send me any more promotions",
+  "i don't want any more messages",
+  "i no longer want to receive your texts",
+  "I don't want to hear from you again",
+  "remove me from the list",
+  "take me off your mailing list",
+  "delete me from your contacts",
+  "unsubscribe me",
+  "please unsubscribe me from this",
+  "how do I unsubscribe?",
+  "opt me out",
+  "i want to opt out",
+  "cancel my newsletter subscription",
+  "cancel my subscription to the emails",
+];
+
+const INGLES_NAO_PEDE = [
+  "can you stop the pain?",
+  "how do I cancel my order?",
+  "can I cancel my appointment for tomorrow?",
+  "stop by tomorrow",
+  "can I stop by at 3pm?",
+  "I quit smoking last year",
+  "I want to quit the treatment for now",
+  "will you end the promotion today?",
+  "the bleeding won't stop",
+  "the movers stop calling it a day at five",
+  "please don't call me tomorrow, call on Friday",
+  "don't call me again until Monday, I'm traveling",
+  "don't call me anymore, just text me on whatsapp",
+  "stop sending the order to that address",
+  "stop sending me the wrong orders",
+  "stop sending me duplicate invoices",
+  "don't send me any more bills, I already paid",
+  "I don't want to receive the invoice here, send it by email",
+  "remove me from the waiting list",
+  "take me off the guest list for Friday",
+  "can I cancel my subscription plan?",
+  "I need to cancel my membership",
+  "I don't want the extra insurance",
+  "I don't want to go on Monday",
+  "the pain will go away, right?",
+  "that's enough for me, thanks for the info",
+  "opt out of the insurance coverage?",
+  "leave the keys with the reception",
+  "I'm not interested in the basic plan, show me the premium one",
+  "I'm no longer interested in the basic plan",
+  "I said no to the deposit yesterday",
+  "how do I stop this charge?",
+  "no",
+  "",
+];
+
+describe("inglês — mesma regra, terceira língua", () => {
+  for (const texto of INGLES_PEDE_PARA_SAIR) {
+    it(`bloqueia: ${texto}`, () => {
+      expect(ehPedidoDeOptOut(texto)).toBe(true);
+    });
+  }
+
+  for (const texto of INGLES_NAO_PEDE) {
+    it(`NÃO bloqueia nem escala: ${texto}`, () => {
+      expect(ehPedidoDeOptOut(texto), texto).toBe(false);
+      expect(ehOptOutProvavel(texto), texto).toBe(false);
+    });
+  }
+
+  it.each([
+    "leave me alone",
+    "Please stop",
+    "stop it",
+    "enough",
+    "that's enough already",
+    "go away",
+    "I already told you I'm not interested",
+    "i said no",
+    "not interested anymore",
+    "I'm no longer interested",
+  ])("ambíguo escala mas não bloqueia: %s", (texto) => {
+    expect(ehOptOutProvavel(texto), texto).toBe(true);
+    expect(ehPedidoDeOptOut(texto), texto).toBe(false);
+  });
+});
+
 describe("ehPedidoDeOptOut — pedido INEQUÍVOCO, o que autoriza bloquear", () => {
   it.each(PEDE_PARA_SAIR)("respeita o pedido: %s", (texto) => {
     expect(ehPedidoDeOptOut(texto), `deveria ter reconhecido "${texto}"`).toBe(true);
