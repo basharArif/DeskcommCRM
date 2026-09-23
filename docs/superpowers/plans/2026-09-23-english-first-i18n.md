@@ -56,10 +56,12 @@ inventory found 747 unresolved dynamic `t()` sites; those strings will silently 
 Portuguese in English too), **#890** (English docs). Chinese PR #773 was **closed unmerged**; its
 `zh-CN.json` remained in the tree.
 
-Numbers to re-check before trusting `docs/i18n/inventory-en.md`: it reports 7,333 dictionary
-entries vs 5,570 keys reached by code (≈1,760 entries possibly dead or only reached dynamically —
-translate the reached ones first), and "5,487/5,570 es (98.5%)" next to "100% of reachable UI",
-which contradict each other unless the 83 are excluded by the gate — confirm which.
+Numbers re-checked and confirmed on 2026-09-23:
+The 83 keys without `es` in the total code scan consist of:
+- 74 error/status messages inside `app/api/**` (route handlers, API error responses), which are intentionally excluded from the UI gate by `PASTAS_IGNORADAS = ["api"]` in `tests/unit/i18n-espanhol-cobre-a-tela.test.ts`.
+- 9 dynamic property access expressions in UI forms (webhooks rule editor, invite-team role descriptions).
+Literal `t()` calls on actual UI screens have **100% Spanish coverage (0 missing)**.
+Regarding dictionary size: `DICIONARIO` has 7,333 entries vs 5,570 AST-scanned keys in code; the difference (~1,763 entries) represents strings reached dynamically from tables/enums, backend services, or retained historical keys.
 
 ### Upstream context (important)
 

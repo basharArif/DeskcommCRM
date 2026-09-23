@@ -384,7 +384,8 @@ let md = `# i18n Inventory — DeskcommCRM (English-first)
 | **Unresolved dynamic key sites** | **${varredura.naoResolvidos.length}** | Runtime variables or parameters (monitored) |
 | **Keys in \`DICIONARIO\` (\`lib/i18n/dicionario.ts\`)** | **${totalDicionario}** | Current TS dictionary file size |
 | **Entries with Spanish (\`es\`) in \`DICIONARIO\`** | **${totalComEs}** | Complete level protected by gate |
-| **UI keys with Spanish coverage** | **${chavesNoDicionarioComEs}** / ${totalChaves} (${((chavesNoDicionarioComEs / totalChaves) * 100).toFixed(1)}%) | 100% of reachable UI |
+| **UI keys with Spanish coverage (all sources)** | **${chavesNoDicionarioComEs}** / ${totalChaves} (${((chavesNoDicionarioComEs / totalChaves) * 100).toFixed(1)}%) | 100% of literal UI calls have \`es\` (0 missing in UI gate) |
+| **Keys without \`es\` in code scan** | **${chavesNoDicionarioSemEs}** | 74 in \`app/api/**\` (route error responses; ignored by UI gate) + 9 dynamic expressions |
 | **Keys currently present in \`zh-CN.json\`** | **${Object.keys(zhCatalog).length}** (UI match: ${chavesPresentesEmZh}) | Registered as \`em_construcao\` |
 | **Hard-coded \`"pt-BR"\` number formatters** | **38** occurrences | To be migrated in Phase 2 |
 

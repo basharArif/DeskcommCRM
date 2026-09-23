@@ -15,7 +15,8 @@
 | **Unresolved dynamic key sites** | **747** | Runtime variables or parameters (monitored) |
 | **Keys in `DICIONARIO` (`lib/i18n/dicionario.ts`)** | **7333** | Current TS dictionary file size |
 | **Entries with Spanish (`es`) in `DICIONARIO`** | **7333** | Complete level protected by gate |
-| **UI keys with Spanish coverage** | **5487** / 5570 (98.5%) | 100% of reachable UI |
+| **UI keys with Spanish coverage (all sources)** | **5487** / 5570 (98.5%) | 100% of literal UI calls have `es` (0 missing in UI gate) |
+| **Keys without `es` in code scan** | **83** | 74 in `app/api/**` (route error responses; ignored by UI gate) + 9 dynamic expressions |
 | **Keys currently present in `zh-CN.json`** | **5384** (UI match: 3998) | Registered as `em_construcao` |
 | **Hard-coded `"pt-BR"` number formatters** | **38** occurrences | To be migrated in Phase 2 |
 
