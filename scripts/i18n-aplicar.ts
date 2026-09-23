@@ -39,6 +39,9 @@ interface RegraGlossario {
   proibidos: RegExp[];
 }
 
+// "negócio" como empresa do cliente (não deal do CRM) pode virar "business".
+const NEGOCIO_COMO_EMPRESA = /seu negócio|tipo de negócio|negócio foi|meu negócio|vocabulário do negócio|para o negócio|sobre o negócio/i;
+
 function carregarGlossario(): RegraGlossario[] {
   const p = join(RAIZ, "docs/i18n/glossary-en.md");
   if (!existsSync(p) || IDIOMA !== "en") return [];
@@ -112,8 +115,10 @@ for (const arq of arquivos) {
   }
   for (const { chave, traducao: bruta } of lerItens(conteudo)) {
     stats.lidos++;
-    const traducao = bruta.trim();
-    if (!traducao) { stats.vazios++; continue; }
+    const miolo = bruta.trim();
+    if (!miolo) { stats.vazios++; continue; }
+    // Chaves com espaço nas pontas são fragmentos concatenados na UI: o espaço tem de sobreviver.
+    const traducao = (chave.match(/^\s*/)?.[0] ?? "") + miolo + (chave.match(/\s*$/)?.[0] ?? "");
     if (!chavesVivas.has(chave)) {
       console.warn(`[Chave inexistente] "${chave}"`);
       stats.inexistentes++;
@@ -137,7 +142,7 @@ for (const arq of arquivos) {
     }
 
     const violada = glossario.find(
-      (r) => r.pt.test(chave) && r.proibidos.some((x) => x.test(traducao)) && !r.canonico.some((c) => traducao.toLowerCase().includes(c)),
+      (r) => r.pt.test(chave) && !(r.canonico.includes("deal") && NEGOCIO_COMO_EMPRESA.test(chave)) && r.proibidos.some((x) => x.test(traducao)) && !r.canonico.some((c) => traducao.toLowerCase().includes(c)),
     );
     if (violada) {
       console.warn(`[Glossário] "${chave}" -> "${traducao}" usa termo proibido (esperado: ${violada.canonico.join(" / ")})`);

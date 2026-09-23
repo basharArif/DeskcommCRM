@@ -25,7 +25,7 @@
 | Portuguese Term | Canonical English | Prohibited / Incorrect | Notes & Context |
 |---|---|---|---|
 | **Lead / Leads** | **Lead / Leads** | Prospect (unless specifically prospecting) | Keep as "Lead" |
-| **Negócio / Oportunidade** | **Deal** | Business, Negotiation | Kanban cards and pipeline opportunities |
+| **Negócio / Oportunidade** | **Deal** | Business, Negotiation | Kanban cards and pipeline opportunities. Exception: "seu negócio", "tipo de negócio", "negócio foi", "meu negócio", "vocabulário do negócio", "para o negócio", "sobre o negócio" mean the customer's company -> "business" (allowed by `scripts/i18n-aplicar.ts`) |
 | **Funil / Pipeline** | **Pipeline** | Funnel | Sales pipeline |
 | **Etapa / Estágio** | **Stage** | Step, Phase | Stage within a pipeline |
 | **Handoff** | **Handoff** | Transfer to human | Transition from AI bot to human agent |
