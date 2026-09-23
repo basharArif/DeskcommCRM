@@ -212,7 +212,7 @@ Per wave:
 - [ ] `scripts/bootstrap-owner.ts`: derive accepted locales from the registry; default `en` on the fork.
 - [ ] `hostgator-setup-kit/install.sh` + `ubuntu-local-installer.sh`: add English option,
       default English on the fork; `pnpm test:shell`.
-- [ ] ⚠️ Ask owner: flip `IDIOMA_PADRAO` to `en`?
+- [x] ⚠️ Ask owner: flip `IDIOMA_PADRAO` to `en`? (approved 2026-09-24; flipped)
 - [ ] Full gates + e2e (`pnpm test:e2e`) with an English org; `vps-fresh-onboarding` flow in English.
 - [ ] Release fragment in `.changes/` (`capacidade_nova`).
 
@@ -272,3 +272,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 | 2026-09-24 | Phase 4 — English catalog waves 0-6 (text only) | feat/i18n-phase-3-tooling | 7,416/7,416 keys in `en.json` (100%) via `i18n:aplicar`; QA fixes: tenant->organization, "Google Business Profile", business-vs-deal glossary exception, `i18n:aplicar` now preserves key edge whitespace. Browser proof and per-wave reviewer subagent NOT done (boxes stay open) |
 | 2026-09-24 | Phase 3+4 + Phase 5 partial | feat/i18n-phase-3-tooling | Tooling committed; en.json 7,416/7,416 keys, independently reviewed (76 fixes). Phase 5 slices: English opt-out vocab, invite e-mail, lead handoff notices, prompt scaffolding, Entrada/Saída context keys (`@@`). Open: browser proof, Central/cron texts, GoTrue mails, reentry/follow-up/niche templates, seed data (migration). |
 | 2026-09-24 | Phase 5 seed data | feat/i18n-phase-3-tooling | Migration 0392: `fn_seed_default_pipeline_for_org` + `fn_semear_tipos_de_agendamento` localize by `organizations.locale` (en only; pt/es identical, slugs unchanged); signup provisioning now writes user locale to the org. |
+| 2026-09-24 | Phase 6 default flip | feat/i18n-phase-3-tooling | `IDIOMA_PADRAO`, bootstrap-owner, both installers (English = option 1/Enter), `.env.example`, external provisioning org insert now writes `locale`. No schema change: DB column default stays `pt-BR`; existing rows untouched. |

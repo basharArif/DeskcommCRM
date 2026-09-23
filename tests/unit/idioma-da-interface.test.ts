@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.unmock("@/lib/i18n/idiomas");
 
 /**
  * O IDIOMA DA INTERFACE — a escolha que não mudava nada.
@@ -57,6 +59,10 @@ describe("normalizar o idioma que veio do perfil", () => {
   it("aceita os que sabemos servir", () => {
     expect(normalizarIdioma("es")).toBe("es");
     expect(normalizarIdioma("pt-BR")).toBe("pt-BR");
+  });
+
+  it("o padrão da instalação nova é English", () => {
+    expect(IDIOMA_PADRAO).toBe("en");
   });
 
   it("fecha no padrão para o que não conhece", () => {

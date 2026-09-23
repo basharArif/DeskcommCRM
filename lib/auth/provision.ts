@@ -2,7 +2,7 @@ import { createHash, randomBytes } from "node:crypto";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { audit } from "@/lib/audit";
-import { normalizarIdioma } from "@/lib/i18n/idiomas";
+import { IDIOMA_PADRAO, normalizarIdioma } from "@/lib/i18n/idiomas";
 
 /** Normaliza o nome da empresa para um slug candidato (citext unique no DB). */
 export function slugify(name: string): string {
@@ -294,6 +294,7 @@ export async function provisionExternalTenant(
       legal_name: input.organizationName,
       status: "active",
       created_by: ownerId,
+      locale: IDIOMA_PADRAO,
       settings: { provisioning: marcador },
     })
     .select("id")

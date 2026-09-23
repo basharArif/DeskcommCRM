@@ -67,6 +67,7 @@ function poolFalso(opts: { falhaEm?: string } = {}) {
     if (opts.falhaEm !== undefined && sql.includes(opts.falhaEm)) {
       throw new Error("banco fora");
     }
+    if (sql.includes("select locale from organizations")) return { rows: [{ locale: "pt-BR" }], rowCount: 1 };
     return { rows: [], rowCount: 0 };
   });
   return { pool: { query } as never, chamadas, query };

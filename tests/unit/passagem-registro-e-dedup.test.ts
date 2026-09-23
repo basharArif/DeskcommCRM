@@ -85,6 +85,9 @@ vi.mock("@/lib/supabase/admin", () => ({
               error: null,
             });
           }
+          if (tabela === "organizations") {
+            return Promise.resolve({ data: { locale: "pt-BR" }, error: null });
+          }
           if (tabela === "agent_inbox_items") {
             return Promise.resolve({ data: abertoNaCentral.valor, error: null });
           }
@@ -117,6 +120,7 @@ function poolFalso() {
   const chamadas: Array<{ sql: string; params: unknown[] }> = [];
   const query = vi.fn(async (sql: string, params: unknown[] = []) => {
     chamadas.push({ sql, params });
+    if (sql.includes("select locale from organizations")) return { rows: [{ locale: "pt-BR" }], rowCount: 1 };
     return { rows: [], rowCount: 0 };
   });
   return { pool: { query } as never, chamadas };

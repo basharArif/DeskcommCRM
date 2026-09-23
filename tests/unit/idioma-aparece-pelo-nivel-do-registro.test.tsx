@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+vi.unmock("@/lib/i18n/idiomas");
+
 import { ProfileForm } from "@/app/app/settings/profile/_form";
 import { TenantForm } from "@/app/app/settings/tenant/_form";
 import { IdiomaProvider } from "@/lib/i18n/IdiomaProvider";
@@ -53,8 +55,8 @@ describe("o registro de idiomas", () => {
     expect(new Set(subtags).size).toBe(subtags.length);
   });
 
-  it("começa pelo padrão do produto", () => {
-    expect(REGISTRO_DE_IDIOMAS[0]?.codigo).toBe(IDIOMA_PADRAO);
+  it("contém o padrão do produto", () => {
+    expect(REGISTRO_DE_IDIOMAS.map((i) => i.codigo)).toContain(IDIOMA_PADRAO);
   });
 
   it("o português e o espanhol são `completo` — nada neles afrouxa", () => {

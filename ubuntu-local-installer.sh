@@ -172,8 +172,8 @@ export OWNER_EMAIL="${OWNER_EMAIL:-admin@admin.com}"
 export OWNER_PASSWORD="${OWNER_PASSWORD:-$(openssl rand -base64 18)}"
 export OWNER_ORG_NAME="Deskcomm Local"
 case "${APP_LOCALE:-}" in
-  es|en) export APP_LOCALE ;;
-  *) export APP_LOCALE="pt-BR" ;;
+  es|en|pt-BR) export APP_LOCALE ;;
+  *) export APP_LOCALE="en" ;;
 esac
 
 # Instala a dependência para rodar o bootstrap e executa

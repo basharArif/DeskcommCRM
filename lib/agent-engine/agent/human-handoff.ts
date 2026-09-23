@@ -158,7 +158,7 @@ export async function performHumanHandoff(
       /** O briefing montado por `montarBriefingDaPassagem`. */
       briefing: BriefingDaPassagem;
       casoId?: string | null;
-      /** O idioma da ORGANIZAÇÃO, quando o chamador já o tem. Default: pt-BR. */
+      /** O idioma da ORGANIZAÇÃO, quando o chamador já o tem. Default: o do produto. */
       idioma?: Idioma;
     };
     /**

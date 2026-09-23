@@ -61,7 +61,7 @@ const APP_LOCALE = IDIOMAS_SERVIDOS.includes(
   (env.APP_LOCALE ?? "").trim(),
 )
   ? (env.APP_LOCALE as string).trim()
-  : "pt-BR";
+  : "en";
 
 if (!SUPABASE_URL || !SERVICE_ROLE) {
   throw new Error("Faltam NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY.");
