@@ -90,7 +90,7 @@ export const REGISTRO_DE_IDIOMAS = [
     rotuloCurto: "EN",
     tagBcp47: "en-US",
     subtagsDoNavegador: ["en"],
-    nivel: "em_construcao",
+    nivel: "completo",
     mantenedor: "mantenedores do fork",
   },
 ] as const satisfies readonly IdiomaRegistrado[];

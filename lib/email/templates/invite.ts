@@ -16,6 +16,9 @@
  * ter visto qualquer tela do produto.
  */
 import { NEUTROS_DE_SAIDA, type MarcaDeSaida } from "@/lib/branding/saida";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { resolverTagBcp47 } from "@/lib/i18n/numeros";
+import { IDIOMA_PADRAO } from "@/lib/i18n/idiomas";
 
 export interface InviteEmailOptions {
   inviterName: string;
@@ -25,6 +28,12 @@ export interface InviteEmailOptions {
   expiresAt: Date;
   /** A marca de quem convidou. Obrigatória — sem ela o e-mail não tem dono. */
   marca: MarcaDeSaida;
+  /** Idioma da organização que convida; o destinatário ainda não tem preferência. */
+  idioma?: string;
+}
+
+function preencher(modelo: string, valores: Record<string, string>): string {
+  return modelo.replace(/\{(\w+)\}/g, (m, k: string) => valores[k] ?? m);
 }
 
 export function buildInviteEmail(opts: InviteEmailOptions): {
@@ -32,11 +41,25 @@ export function buildInviteEmail(opts: InviteEmailOptions): {
   html: string;
   text: string;
 } {
-  const expiresStr = opts.expiresAt.toLocaleString("pt-BR", {
+  const idioma = opts.idioma ?? IDIOMA_PADRAO;
+  const t = (texto: string) => traduzir(texto, idioma);
+  const expiresStr = opts.expiresAt.toLocaleString(resolverTagBcp47(idioma), {
     timeZone: "America/Sao_Paulo",
   });
   const marca = opts.marca.nome;
-  const subject = `${opts.inviterName} convidou você para a ${opts.orgName} no ${marca}`;
+  const subject = preencher(t("{convidador} convidou você para a {org} no {marca}"), {
+    convidador: opts.inviterName,
+    org: opts.orgName,
+    marca,
+  });
+  const cru = { convidador: opts.inviterName, org: opts.orgName, marca, papel: opts.role, expira: expiresStr };
+  const esc = {
+    convidador: escapeHtml(opts.inviterName),
+    org: escapeHtml(opts.orgName),
+    marca: escapeHtml(marca),
+    papel: `<strong>${escapeHtml(opts.role)}</strong>`,
+    expira: `<strong>${escapeHtml(expiresStr)}</strong>`,
+  };
 
   /**
    * O logo de quem convidou, quando há um.
@@ -60,39 +83,38 @@ export function buildInviteEmail(opts: InviteEmailOptions): {
     : "";
 
   const html = `<!doctype html>
-<html lang="pt-BR">
+<html lang="${resolverTagBcp47(idioma)}">
 <body style="margin:0;padding:0;background:${NEUTROS_DE_SAIDA.fundo};font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:${NEUTROS_DE_SAIDA.texto}">
   <div style="max-width:560px;margin:0 auto;padding:32px 24px">
     ${logo}
     <h1 style="font-size:22px;line-height:1.3;margin:0 0 16px;color:${NEUTROS_DE_SAIDA.texto}">
-      Você foi convidado para a ${escapeHtml(opts.orgName)}
+      ${preencher(t("Você foi convidado para a {org}"), esc)}
     </h1>
     <p style="margin:0 0 16px;font-size:15px;line-height:1.5">
-      ${escapeHtml(opts.inviterName)} convidou você como
-      <strong>${escapeHtml(opts.role)}</strong> no ${escapeHtml(marca)}.
+      ${preencher(t("{convidador} convidou você como {papel} no {marca}."), esc)}
     </p>
     <p style="margin:24px 0">
       <a href="${opts.acceptUrl}" style="display:inline-block;padding:12px 24px;background:${opts.marca.accent};color:${opts.marca.accentFg};border-radius:6px;text-decoration:none;font-weight:600">
-        Aceitar convite
+        ${escapeHtml(t("Aceitar convite"))}
       </a>
     </p>
     <p style="margin:0 0 8px;font-size:13px;color:${NEUTROS_DE_SAIDA.suave}">
-      Ou copie e cole este link no navegador:<br>
+      ${escapeHtml(t("Ou copie e cole este link no navegador:"))}<br>
       <span style="word-break:break-all;color:${opts.marca.accent}">${opts.acceptUrl}</span>
     </p>
     <p style="margin:24px 0 0;font-size:13px;color:${NEUTROS_DE_SAIDA.suave}">
-      Este link expira em <strong>${expiresStr}</strong>. Se você não esperava este convite, pode ignorá-lo.
+      ${preencher(t("Este link expira em {expira}. Se você não esperava este convite, pode ignorá-lo."), esc)}
     </p>
   </div>
 </body>
 </html>`;
 
   const text = [
-    `Você foi convidado para a ${opts.orgName} como ${opts.role} no ${marca}.`,
+    preencher(t("Você foi convidado para a {org} como {papel} no {marca}."), cru),
     "",
-    `Aceitar: ${opts.acceptUrl}`,
+    `${t("Aceitar:")} ${opts.acceptUrl}`,
     "",
-    `Expira em ${expiresStr}.`,
+    preencher(t("Expira em {expira}."), cru),
   ].join("\n");
 
   return { subject, html, text };

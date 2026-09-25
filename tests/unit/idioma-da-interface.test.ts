@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.unmock("@/lib/i18n/idiomas");
 
 /**
  * O IDIOMA DA INTERFACE — a escolha que não mudava nada.
@@ -59,6 +61,10 @@ describe("normalizar o idioma que veio do perfil", () => {
     expect(normalizarIdioma("pt-BR")).toBe("pt-BR");
   });
 
+  it("o padrão da instalação nova é English", () => {
+    expect(IDIOMA_PADRAO).toBe("en");
+  });
+
   it("fecha no padrão para o que não conhece", () => {
     // `en-US` esteve no seletor por muito tempo e nunca teve tradução. Um
     // perfil antigo ainda o traz, e deixá-lo passar mostraria a CHAVE na tela.
@@ -74,7 +80,7 @@ describe("Accept-Language de quem ainda não tem sessão", () => {
   // consultar — sem isto, um visitante em espanhol via anônimo cai sempre em
   // português, mesmo que o navegador dele diga `es` na frente da lista.
   it("acha o primeiro idioma suportado na ORDEM de preferência, não no maior q", () => {
-    expect(parseAcceptLanguage("en;q=0.9,es;q=0.8")).toBe("es");
+    expect(parseAcceptLanguage("fr;q=0.9,es;q=0.8")).toBe("es");
   });
 
   it("reconhece a família do idioma, não só a tag exata", () => {
@@ -83,7 +89,7 @@ describe("Accept-Language de quem ainda não tem sessão", () => {
   });
 
   it("sem nenhum idioma suportado na lista, devolve null (cai no padrão depois)", () => {
-    expect(parseAcceptLanguage("en-US,en;q=0.9,fr;q=0.8")).toBeNull();
+    expect(parseAcceptLanguage("fr-FR,fr;q=0.9,de;q=0.8")).toBeNull();
   });
 
   it("cabeçalho ausente ou vazio devolve null", () => {

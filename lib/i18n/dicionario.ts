@@ -34,6 +34,9 @@
 import type { Idioma } from "./idiomas";
 import { buscarNoCatalogo } from "./catalogos";
 
+/** Homônimos: "Entrada@@chamada" mostra "Entrada" em pt-BR, mas ganha tradução própria nos outros idiomas. */
+const SEPARADOR_DE_CONTEXTO = "@@";
+
 /** `pt-BR` não aparece: é a chave. Só o que DIFERE precisa de linha. */
 type Traducoes = Record<string, Partial<Record<Exclude<Idioma, "pt-BR"> | string, string>>>;
 
@@ -822,6 +825,8 @@ export const DICIONARIO: Traducoes = {
   "Entrada ou saída?": { es: "¿Entrada o salida?" },
   "Entrada": { es: "Entrada" },
   "Saída": { es: "Salida" },
+  "Entrada@@chamada": { es: "Entrada" },
+  "Saída@@chamada": { es: "Salida" },
   "Adicionar plano": { es: "Agregar plan" },
   "Nenhum plano de contas cadastrado.": { es: "No hay planes de cuentas registrados." },
 
@@ -11581,6 +11586,16 @@ export const DICIONARIO: Traducoes = {
   },
   "Versão não encontrada para esta skill.": { es: "No se encontró esa versión para esta skill." },
   "Versão da skill não encontrada.": { es: "No se encontró la versión de la skill." },
+  "{convidador} convidou você para a {org} no {marca}": { es: "{convidador} te invitó a {org} en {marca}" },
+  "Você foi convidado para a {org}": { es: "Te invitaron a {org}" },
+  "{convidador} convidou você como {papel} no {marca}.": { es: "{convidador} te invitó como {papel} en {marca}." },
+  "Ou copie e cole este link no navegador:": { es: "O copia y pega este enlace en el navegador:" },
+  "Este link expira em {expira}. Se você não esperava este convite, pode ignorá-lo.": {
+    es: "Este enlace vence el {expira}. Si no esperabas esta invitación, puedes ignorarla.",
+  },
+  "Você foi convidado para a {org} como {papel} no {marca}.": { es: "Te invitaron a {org} como {papel} en {marca}." },
+  "Aceitar:": { es: "Aceptar:" },
+  "Expira em {expira}.": { es: "Vence el {expira}." },
 };
 
 /**
@@ -11591,10 +11606,11 @@ export const DICIONARIO: Traducoes = {
  * tradução parcial não pode deixar a tela PIOR do que estava.
  */
 export function traduzir(texto: string, idioma: Idioma | string): string {
-  if (idioma === "pt-BR") return texto;
+  const semContexto = texto.split(SEPARADOR_DE_CONTEXTO)[0] ?? texto;
+  if (idioma === "pt-BR") return semContexto;
   return (
     DICIONARIO[texto]?.[idioma as Exclude<Idioma, "pt-BR">] ??
     buscarNoCatalogo(texto, idioma) ??
-    texto
+    semContexto
   );
 }

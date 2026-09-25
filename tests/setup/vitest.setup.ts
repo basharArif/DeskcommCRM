@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -165,3 +166,9 @@ if (typeof document !== "undefined") {
     await new Promise((resolver) => setTimeout(resolver, 0));
   });
 }
+
+// Testes legados assertam texto pt-BR sem provider; o padrão real (en) é coberto em idioma-da-interface.test.ts com vi.unmock.
+vi.mock("@/lib/i18n/idiomas", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/i18n/idiomas")>()),
+  IDIOMA_PADRAO: "pt-BR",
+}));

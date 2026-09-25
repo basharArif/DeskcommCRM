@@ -201,3 +201,23 @@ describe("a conta do spinning — por que o gate é desarmado para o aviso", () 
     }
   });
 });
+
+describe("aviso ao lead em inglês", () => {
+  it("pt-BR e es ficam idênticos ao texto de antes", () => {
+    for (const m of MOTIVOS) {
+      const base = textoDoAviso(m, null, LEAD);
+      expect(textoDoAviso(m, null, LEAD, "pt-BR")).toBe(base);
+      expect(textoDoAviso(m, null, LEAD, "es")).toBe(base);
+    }
+  });
+
+  it("en sai em inglês, com 3 redações por motivo e sem o id do lead", () => {
+    for (const m of MOTIVOS) {
+      const textos = new Set(
+        Array.from({ length: 60 }, () => textoDoAviso(m, null, randomUUID(), "en")),
+      );
+      expect(textos.size, m).toBeGreaterThanOrEqual(3);
+      for (const t of textos) expect(t).not.toMatch(/[ãçõé]/);
+    }
+  });
+});
