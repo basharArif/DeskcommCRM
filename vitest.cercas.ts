@@ -87,6 +87,10 @@ function classificador(raiz: string): (arquivo: string) => boolean {
     const resultado =
       !USA_DOM.test(fonte) &&
       ehCerca(fonte, (especificador) => {
+        // Catálogo de idioma é dado puro; o leitor `lib/i18n/catalogos.ts` o importa.
+        if (especificador.endsWith(".json") && especificador.startsWith(".")) {
+          return existsSync(join(dirname(arquivo), especificador));
+        }
         const alvo = resolver(raiz, arquivo, especificador);
         return alvo !== null && classificar(alvo);
       });
