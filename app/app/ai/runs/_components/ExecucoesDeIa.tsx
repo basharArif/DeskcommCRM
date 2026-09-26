@@ -15,13 +15,14 @@ import { useTagDeIdioma } from "@/hooks/i18n/useLocaleDeData";
  * decisão de desenho mais importante aqui — invertê-la faz a tela abrir com
  * jargão e devolve ao operador o trabalho de adivinhação que ela veio acabar.
  */
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useT } from "@/hooks/i18n/useT";
-
+import { PROVEDOR_DO_JEV } from "@/lib/ai/decisao/credencial";
 import { formatarMoeda } from "@/lib/i18n/numeros";
 
 interface Execucao {
@@ -29,6 +30,7 @@ interface Execucao {
   purpose: string;
   pontoRotulo: string;
   provider: string;
+  provedorRotulo: string;
   model: string;
   status: string;
   error_code: string | null;
@@ -57,13 +59,22 @@ export function ExecucoesDeIa() {
   const [resumo, setResumo] = useState<Resumo | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [soErros, setSoErros] = useState(false);
+  // O provedor mora na URL, e não em estado: é por ela que o cartão do Jev
+  // traz a pessoa já filtrada ("Ver as decisões do Jev").
+  const router = useRouter();
+  const pathname = usePathname();
+  const provider = useSearchParams().get("provider");
+  const soOJev = provider === PROVEDOR_DO_JEV;
 
   const carregar = useCallback(async () => {
     // Mesmo tratamento do painel de provedores, e pela mesma razão medida lá:
     // sem ele, uma resposta não-JSON prende a tela em "Carregando…" sem nada
     // explicando — a falha muda que estas telas existem para acabar.
     try {
-      const res = await fetch(`/api/v1/ai/runs${soErros ? "?status=erro" : ""}`);
+      const busca = new URLSearchParams();
+      if (soErros) busca.set("status", "erro");
+      if (provider) busca.set("provider", provider);
+      const res = await fetch(`/api/v1/ai/runs${busca.toString() ? `?${busca}` : ""}`);
       const texto = await res.text();
       let json: { data?: { execucoes: Execucao[]; resumo: Resumo }; error?: { message?: string } };
       try {
@@ -84,7 +95,7 @@ export function ExecucoesDeIa() {
     } catch (e) {
       setErro(e instanceof Error ? e.message : t("não consegui falar com o servidor"));
     }
-  }, [soErros, t]);
+  }, [soErros, provider, t]);
 
   useEffect(() => {
     void carregar();
@@ -147,7 +158,7 @@ export function ExecucoesDeIa() {
         )}
       </Card>
 
-      <div className="mb-3">
+      <div className="mb-3 flex flex-wrap gap-2">
         <Button
           size="sm"
           variant={soErros ? "default" : "outline"}
@@ -156,13 +167,29 @@ export function ExecucoesDeIa() {
         >
           {soErros ? t("Mostrando só as falhas") : t("Ver só as falhas")}
         </Button>
+        {/* Só onde o Jev existe: numa instalação sem ele, o filtro seria ruído. */}
+        {(soOJev || execucoes.some((e) => e.provider === PROVEDOR_DO_JEV)) && (
+          <Button
+            size="sm"
+            variant={soOJev ? "default" : "outline"}
+            aria-pressed={soOJev}
+            onClick={() =>
+              router.replace(soOJev ? pathname : `${pathname}?provider=${PROVEDOR_DO_JEV}`)
+            }
+            data-testid="filtro-jev"
+          >
+            {soOJev ? t("Mostrando só o Jev") : t("Só o Jev")}
+          </Button>
+        )}
       </div>
 
       {execucoes.length === 0 ? (
         <Card className="p-6 text-sm text-muted-foreground" data-testid="lista-vazia">
           {soErros
             ? t("Nenhuma falha registrada.")
-            : t("Nenhuma execução ainda. Assim que o agente atender alguém, aparece aqui.")}
+            : soOJev
+              ? t("O Jev ainda não mediu nenhuma mensagem.")
+              : t("Nenhuma execução ainda. Assim que o agente atender alguém, aparece aqui.")}
         </Card>
       ) : (
         <div className="space-y-2">
@@ -182,7 +209,7 @@ export function ExecucoesDeIa() {
                   )}
                 </div>
                 <span className="font-mono text-xs text-muted-foreground">
-                  {e.provider} · {e.model}
+                  {e.provedorRotulo} · {e.model}
                 </span>
               </div>
 
@@ -213,7 +240,7 @@ export function ExecucoesDeIa() {
                 </div>
               ) : (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  {e.input_tokens + e.output_tokens} tokens
+                  {e.input_tokens + e.output_tokens} {t("tokens")}
                   {e.latency_ms !== null ? ` · ${e.latency_ms} ms` : ""}
                   {/* `cost_cents` está em CENTAVOS: dividir por 100 dá REAIS, e o
                       rótulo dizia "centavos" — uma execução de 25 centavos
@@ -223,7 +250,7 @@ export function ExecucoesDeIa() {
                   {e.cost_cents !== null
                     ? ` · ${formatarMoeda(e.cost_cents, "USD", tagDoIdioma, {
                         minimumFractionDigits: 2,
-                        maximumFractionDigits: 4,
+                        maximumFractionDigits: 6,
                       })}`
                     : ""}
                 </p>

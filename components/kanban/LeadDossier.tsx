@@ -14,6 +14,7 @@ import { ScoreSlot } from "./ScoreSlot";
 import { LeadTimeline } from "./LeadTimeline";
 import { OwnerBadge } from "./OwnerBadge";
 import { resolveLeadOwner } from "@/lib/kanban/owner";
+import { formatValorDoNegocio, MOEDA_PADRAO } from "@/lib/money";
 import type { CustomFieldDef } from "@/components/contacts/CustomFieldsEditor";
 
 interface Props {
@@ -26,11 +27,10 @@ interface Props {
   ownerNames?: Map<string, string | null>;
 }
 
-import { formatCents } from "@/lib/money";
-
-function formatBRL(cents: number | null, currency: string | null): string {
+function formatValor(cents: number | null, currency: string | null): string {
+  // Mesma régua e mesmo locale do card e do total da coluna (`formatValorDoNegocio`).
   if (cents === null) return "—";
-  return formatCents(cents, currency ?? "BRL", { maximumFractionDigits: 0 });
+  return formatValorDoNegocio(cents, currency ?? MOEDA_PADRAO, { semCentavos: true });
 }
 
 /**
@@ -82,7 +82,7 @@ export function LeadDossier({
         {/* ① cabeçalho vivo */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-border pb-3 text-xs">
           <span className="font-medium tabular-nums text-text">
-            {formatBRL(lead.value_cents, lead.currency)}
+            {formatValor(lead.value_cents, lead.currency)}
           </span>
           <span className="text-text-muted">{stageName}</span>
           <OwnerBadge

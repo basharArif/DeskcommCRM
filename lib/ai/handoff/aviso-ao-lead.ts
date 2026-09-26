@@ -53,7 +53,6 @@ import type {
   MotivoDoAviso as MotivoDoAvisoDaPassagem,
 } from "@/lib/escalacao/passagem";
 import type { QuemPodeAssumir } from "@/lib/escalacao/disponibilidade";
-import { normalizarIdioma, type Idioma } from "@/lib/i18n/idiomas";
 import { logger } from "@/lib/logger";
 
 /** Ator do envio — é o automático falando, não uma pessoa. */
@@ -102,29 +101,29 @@ const CODIGO_DO_ERRO: Readonly<Record<string, MotivoDoAvisoDaPassagem>> = {
  * respondendo a alguém que não sabia que ele vinha. Agora o desfecho é lido do
  * `status` da mensagem devolvida, que é o único lugar onde ele existe.
  */
-async function idiomaDaOrg(admin: SupabaseClient, organizationId: string): Promise<Idioma> {
-  try {
-    const { data } = await admin
-      .from("organizations")
-      .select("locale")
-      .eq("id", organizationId)
-      .maybeSingle();
-    return normalizarIdioma((data as { locale?: string | null } | null)?.locale ?? null);
-  } catch {
-    return "pt-BR";
-  }
-}
-
 export async function avisarLeadDoCrm(
   admin: SupabaseClient,
   input: AvisoDoCrmInput,
 ): Promise<DesfechoDoAvisoDoCrm> {
   try {
+    // O aviso sai no idioma da ORGANIZAÇÃO (ver `textoDoAviso`). A leitura que
+    // falha não pode derrubar o aviso: sem idioma, sai em português, como antes.
+    let idioma: string | null = null;
+    try {
+      const { data: org } = await admin
+        .from("organizations")
+        .select("locale")
+        .eq("id", input.organizationId)
+        .maybeSingle();
+      idioma = (org as { locale?: string | null } | null)?.locale ?? null;
+    } catch {
+      idioma = null;
+    }
     const body = textoDoAviso(
       motivoDoAviso(input.reason),
       await quemPodeAssumir(admin, input.organizationId),
       input.contactId,
-      await idiomaDaOrg(admin, input.organizationId),
+      idioma,
     );
     const mensagem = await sendMessageHandler(
       admin,

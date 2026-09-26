@@ -46,7 +46,7 @@ DeskcommCRM é um sistema operacional de vendas open source com agentes de IA na
 
 ### Idempotência & event sourcing leve
 - Mensagens WhatsApp e eventos externos: `unique (organization_id, external_id)` + captura `code === '23505'` no INSERT
-- POSTs de criação na API aceitam header `Idempotency-Key: <uuid>` (TTL 24h via Upstash)
+- POSTs de criação na API aceitam header `Idempotency-Key: <uuid>` (TTL 24h). O recibo mora no **Postgres** (`public.idempotency_keys`, único por organização + chave + endpoint), não no Upstash — ver `lib/api/idempotency.ts`. Quais rotas leem o header: `grep -rln 'Idempotency-Key' app/api/v1 --include='route.ts'`
 - **Trigger Postgres NUNCA faz HTTP.** Trigger emite linha em `event_log`; worker (cron / Realtime listener) consome e dispara side effect
 
 ### API REST `/api/v1/`
@@ -391,8 +391,22 @@ Duas armadilhas irmãs, as duas pagas no mesmo dia:
   echo "rodapé: ${r:-0 failed} | grep contou: $g"   # têm de bater
   ```
 
-  Se não baterem, a sonda está cega — troque por `--reporter=verbose` e rode de
-  novo, em vez de acreditar no silêncio.
+  Se não baterem, antes de diagnosticar *"sonda cega"* e re-rodar a suíte inteira
+  com `--reporter=verbose`, confira se a divergência é explicada por **falha de
+  coleta ou de hook** (que o Vitest imprime na seção dedicada `Failed Suites`,
+  somando às linhas `FAIL` sem entrar no rodapé de casos `Tests ... failed`):
+
+  ```bash
+  grep -aoE "Failed Suites [0-9]+" /tmp/vt.log | grep -oE "[0-9]+"   # > 0 ⇒ arquivo/suíte falhou SEM ser por caso
+  grep -aqE "^ *Test Files" /tmp/vt.log && echo "log inteiro" || echo "log truncado — o zero não vale"
+  ```
+
+  O segundo comando é necessário: a seção só aparece quando existe falha de
+  suíte, então log truncado ou comando que não rodou também devolvem zero.
+  Se `Failed Suites` for > 0 (e o log estiver inteiro), a conta fecha: `Tests failed` + `Failed Suites` = `grep FAIL`.
+  A causa (falha de sintaxe na coleta ou `Hook timed out` em `beforeAll`) está no próprio log.
+  Reserve o diagnóstico de *"sonda cega"* (trocar por `--reporter=verbose`) para quando
+  as seções também não explicarem a divergência.
 
   **E as duas podem bater em zero com a suíte reprovada.** O Vitest sai com
   `exit=1` quando há **erro não tratado** durante a execução, mesmo com todos os

@@ -3,6 +3,7 @@ import { Draggable } from "@hello-pangea/dnd";
 import type { MouseEvent } from "react";
 import { useT } from "@/hooks/i18n/useT";
 import { cn } from "@/lib/utils";
+import { formatValorDoNegocio, MOEDA_PADRAO } from "@/lib/money";
 import type { Lead } from "@/lib/types/leads";
 import { resolveCardState, stageAgeLabel, type CardInput } from "@/lib/kanban/card-state";
 import { KanbanCardActions } from "./KanbanCardActions";
@@ -46,11 +47,12 @@ interface KanbanCardProps {
   onOpen?: (leadId: string) => void;
 }
 
-import { formatCents } from "@/lib/money";
-
-function formatBRL(cents: number | null, currency: string | null): string | null {
+function formatValor(cents: number | null, currency: string | null): string | null {
+  // A régua do negócio (×100 em qualquer moeda) e o locale da moeda moram em
+  // `formatValorDoNegocio` — a mesma função do total da coluna, para o card e o
+  // topo da coluna nunca escreverem o mesmo dinheiro de dois jeitos.
   if (cents == null) return null;
-  return formatCents(cents, currency, { maximumFractionDigits: 0 });
+  return formatValorDoNegocio(cents, currency ?? MOEDA_PADRAO, { semCentavos: true });
 }
 
 /**
@@ -76,7 +78,7 @@ export function KanbanCard({
   onOpen,
 }: KanbanCardProps) {
   const t = useT();
-  const value = formatBRL(card.valueCents, card.currency);
+  const value = formatValor(card.valueCents, card.currency);
   const state = resolveCardState(card, t);
   const age = stageAgeLabel(card.hoursInStage, t);
 

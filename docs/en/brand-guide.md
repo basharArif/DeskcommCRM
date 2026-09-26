@@ -6,9 +6,9 @@ English condensed translation of docs/brand/README.md.
 
 | File | What it is |
 |---|---|
-| `deskcomm-icon.svg` | The symbol: an open D with a highlighted square module. 216 square. |
-| `deskcomm-logo.svg` | Logotype for light backgrounds: symbol in sage `#506d48`, name in `#1c1a16`, "CRM" in `#5d594f`. |
-| `deskcomm-logo-dark.svg` | Logotype for dark backgrounds: sage `#82a077`, name in `#f5f4ef`, "CRM" in `#8e8b7f`. |
+| `docs/brand/deskcomm-icon.svg` | The symbol: an open D with a highlighted square module. 216 square. |
+| `docs/brand/deskcomm-logo.svg` | Logotype for light backgrounds: symbol in sage `#506d48`, name in `#1c1a16`, "CRM" in `#5d594f`. |
+| `docs/brand/deskcomm-logo-dark.svg` | Logotype for dark backgrounds: sage `#82a077`, name in `#f5f4ef`, "CRM" in `#8e8b7f`. |
 
 The logotype text is already converted to paths: no file depends on a font.
 
@@ -34,7 +34,7 @@ Visual proof (2026-09-08, fresh local Supabase from `baseline.sql`, brand unconf
 
 ## Social preview (Open Graph)
 
-`og-social-preview.png` is 1280×640, the image shown when a repository link is shared on X, LinkedIn, WhatsApp, Slack or Discord.
+`docs/brand/og-social-preview.png` is 1280×640, the image shown when a repository link is shared on X, LinkedIn, WhatsApp, Slack or Discord.
 
 **How to apply:** GitHub → Settings → General → *Social preview* → Upload. There is no public API endpoint for this; it is a UI upload.
 
@@ -60,4 +60,4 @@ The source is versioned on purpose: a card whose origin is lost becomes artwork 
 - Palette read from `app/globals.css` (cream `#faf9f6`, sage `#506d48`, text `#1c1a16`). The card uses the product's real identity, not one made for it.
 - Typography: Atkinson Hyperlegible (headings) + IBM Plex Mono (labels), the same as the app.
 - The right panel is the living-system doctrine turned into an image: the trail a demand leaves crossing the system, ending in the follow-up, the anti-death mechanism. It is the product's argument shown, not adjectived.
-- A share card **always** carries the logotype (inline in the HTML, read from `deskcomm-logo.svg`). Without it, whoever sees the image does not know whose it is.
+- A share card **always** carries the logotype (inline in the HTML, read from `docs/brand/deskcomm-logo.svg`). Without it, whoever sees the image does not know whose it is.

@@ -40,7 +40,6 @@ import type pg from 'pg';
 
 import { expectativaDeAtendimento } from '@/lib/escalacao/disponibilidade';
 import { deriveLgpdFromContact } from '../guardrails/lgpd/legal-basis';
-import { normalizarIdioma, type Idioma } from '@/lib/i18n/idiomas';
 import { textoDoAviso, type MotivoDoAviso } from '@/lib/escalacao/aviso-ao-lead';
 // Dois `MotivoDoAviso` no repositório, e eles respondem perguntas DIFERENTES: o
 // de cima é "que frase o cliente lê"; este é "por que o cliente NÃO leu nada".
@@ -108,18 +107,6 @@ export interface AvisoDeEscalacaoOpts {
   sleep?: (ms: number) => Promise<void>;
 }
 
-async function idiomaDaOrg(pool: pg.Pool, tenantId: string): Promise<Idioma> {
-  try {
-    const { rows } = await pool.query<{ locale: string | null }>(
-      'select locale from organizations where id = $1',
-      [tenantId],
-    );
-    return normalizarIdioma(rows[0]?.locale ?? null);
-  } catch {
-    return 'pt-BR';
-  }
-}
-
 /**
  * Avisa o lead de que uma pessoa vai assumir. NUNCA lança: um erro aqui não pode
  * impedir a passagem que ele antecede — o cliente sem aviso é ruim, o cliente
@@ -131,7 +118,18 @@ export async function avisarLeadDaEscalacao(
   opts: AvisoDeEscalacaoOpts,
 ): Promise<DesfechoDoAviso> {
   let body: string;
-  const idioma = await idiomaDaOrg(pool, ids.tenantId);
+  // O aviso sai no idioma da ORGANIZAÇÃO (ver `textoDoAviso`). Leitura que
+  // falha não impede o aviso: cai no português, como antes.
+  let idioma: string | null = null;
+  try {
+    const { rows } = await pool.query<{ locale: string | null }>(
+      'select locale from organizations where id = $1',
+      [ids.tenantId],
+    );
+    idioma = rows[0]?.locale ?? null;
+  } catch {
+    idioma = null;
+  }
   try {
     const { quem } = await expectativaDeAtendimento(pool, ids.tenantId, opts.now);
     body = textoDoAviso(opts.motivo, quem, ids.leadId, idioma);
