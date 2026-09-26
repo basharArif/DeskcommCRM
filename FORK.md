@@ -34,6 +34,7 @@ Re-check each one after every sync.
 | Locale-aware money | `lib/money.ts`, `lib/i18n/numeros.ts` | Upstream `formatValorDoNegocio` kept. |
 | Lead notices in English | `lib/escalacao/aviso-ao-lead.ts` | `TEXTOS` table gained an `en` entry. |
 | Installer prompts | `hostgator-setup-kit/install.sh`, `_i18n.sh` | English prompt goes through `t()`. |
+| Fast-check selector | `vitest.cercas.ts` | Follows relative `.json` imports as pure data so the i18n guard stays in `pnpm cercas`. |
 | Org-language seeds | migration 0433, `baseline.sql` appendix | Sits before the anon sweep block. |
 
 ## Rules to keep conflicts small

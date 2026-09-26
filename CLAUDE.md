@@ -1,5 +1,11 @@
 # CLAUDE.md — DeskcommCRM
 
+> **FORK (leia antes de tudo):** este clone é o fork `basharArif/DeskcommCRM`, produto separado
+> (inglês primeiro, UI e marca próprias). Regras que **substituem** a "Higiene de branches" abaixo:
+> `main` = espelho de `upstream/main`, **nunca commite nem abra PR a partir dela**; todo trabalho vai
+> em `product` (ou branch dela). Atualizar = `bash scripts/sync-upstream.sh`, só merge, nunca rebase
+> nem force. Detalhes, divergências deliberadas e checklist pós-sync em [`FORK.md`](FORK.md).
+
 > Instruções pra futuras sessões Claude trabalhando neste repo. Leitura obrigatória antes de qualquer task de código.
 
 **Este arquivo é a doutrina — a autoridade final sobre convenção e anti-pattern.** Complementos, na ordem em que ajudam:

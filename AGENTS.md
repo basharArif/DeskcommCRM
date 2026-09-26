@@ -1,5 +1,11 @@
 # Repository Guidelines
 
+> **FORK (leia antes de tudo):** este clone é o fork `basharArif/DeskcommCRM`, produto separado
+> (inglês primeiro, UI e marca próprias). Regras que **substituem** a "Higiene de branches" abaixo:
+> `main` = espelho de `upstream/main`, **nunca commite nem abra PR a partir dela**; todo trabalho vai
+> em `product` (ou branch dela). Atualizar = `bash scripts/sync-upstream.sh`, só merge, nunca rebase
+> nem force. Detalhes, divergências deliberadas e checklist pós-sync em [`FORK.md`](FORK.md).
+
 > Contrato portável para **qualquer** agente de código (Codex, Cursor, OpenCode, Antigravity, Copilot).
 > Este arquivo é o núcleo. A **doutrina completa e não-negociável vive em [`CLAUDE.md`](CLAUDE.md)** —
 > leia-o antes de tocar em código. O mapa de toda a documentação está em [`docs/index.md`](docs/index.md).
