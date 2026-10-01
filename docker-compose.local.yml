@@ -9,6 +9,7 @@
 
 services:
   app:
+    init: true
     build:
       context: .
       dockerfile: Dockerfile
@@ -37,6 +38,7 @@ services:
       start_period: 40s
 
   worker:
+    init: true
     build:
       context: .
       dockerfile: Dockerfile.worker
@@ -63,6 +65,7 @@ services:
       start_period: 20s
 
   scheduler:
+    init: true
     build:
       context: .
       dockerfile: Dockerfile.scheduler
@@ -83,6 +86,7 @@ services:
         condition: service_healthy
 
   waha:
+    init: true
     image: devlikeapro/waha:latest-2026.7.2
     restart: unless-stopped
     ports:
@@ -118,6 +122,7 @@ services:
       start_period: 40s
 
   redis:
+    init: true
     image: redis:7-alpine
     restart: unless-stopped
     command: ["redis-server", "--save", "", "--appendonly", "no"]
@@ -128,6 +133,7 @@ services:
       retries: 3
 
   srh:
+    init: true
     image: hiett/serverless-redis-http@sha256:5b0bb9239fce53abf87b2018a7a0deb9ec7bd900c5360738fe5fbeeb426f9150
     restart: unless-stopped
     environment:

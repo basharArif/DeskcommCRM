@@ -18,6 +18,7 @@ version: "3.9"
 
 services:
   waha:
+    init: true
     image: devlikeapro/waha:noweb
     platform: linux/amd64
     container_name: deskcomm-waha
@@ -62,6 +63,7 @@ services:
   # event_log e turnos do agente rico. Postgres = Supabase (SUPABASE_DB_URL no
   # .env.local). Sobe junto do WAHA: `docker compose up -d`.
   worker:
+    init: true
     build:
       context: .
       dockerfile: Dockerfile.worker

@@ -12,6 +12,7 @@ x-logging: &default-logging
 
 services:
   app:
+    init: true
     # Teto de memória — 335 MiB de pico MEDIDO nesta VPS.
     #
     # Sem ele o contêiner é ilimitado, e numa VPS de 3,8 GB isso não é teoria:
@@ -58,6 +59,7 @@ services:
 
   # Worker 24/7 do agent-engine (fusão Vendaval) — cérebro do agente SDR.
   worker:
+    init: true
     # Teto de memória — 230 MiB de pico MEDIDO nesta VPS.
     #
     # Sem ele o contêiner é ilimitado, e numa VPS de 3,8 GB isso não é teoria:
@@ -111,6 +113,7 @@ services:
       retries: 3
       start_period: 20s
   waha:
+    init: true
     # Teto de memória — 893 MiB de pico MEDIDO nesta VPS.
     #
     # Sem ele o contêiner é ilimitado, e numa VPS de 3,8 GB isso não é teoria:
@@ -169,6 +172,7 @@ services:
     networks: [internal]
 
   redis:
+    init: true
     image: redis:7-alpine
     restart: unless-stopped
     command: ["redis-server", "--save", "", "--appendonly", "no"]  # efêmero (rate-limit/debounce)
@@ -181,6 +185,7 @@ services:
     networks: [internal]
 
   srh:
+    init: true
     # serverless-redis-http: fala o REST do Upstash sobre o redis normal, mantendo
     # o SDK @upstash/redis sem tocar código.
     #
@@ -204,6 +209,7 @@ services:
     networks: [internal]
 
   scheduler:
+    init: true
     # Cron sem docker.sock: crond interno batendo curl na rede interna.
     # Resolução de 1 min — o menor passo que o crond tem, e o piso de latência
     # de tudo que depende de cron (a lista tem rotas de minuto em minuto).
@@ -271,6 +277,7 @@ services:
   # A API do WaCalls fica só na rede interna, alcançável pelo app e pelo worker.
   # `tests/unit/portas-do-compose.test.ts` reprova quem publicar porta aqui.
   wacalls:
+    init: true
     profiles: ["voz"]
     mem_limit: 256m
     image: ${WACALLS_IMAGE:-ghcr.io/jotadev66/wacalls@sha256:9ff52ef9455cf42125a911c38bb8c855f0cc205516cada2054e5c05546909022}
@@ -341,6 +348,7 @@ services:
   # é o da `20-alpine` = `20.20.1_alpine-3.24-e9d725f` (16/09), multi-arch
   # (amd64 + arm64). `pull_policy: missing` porque o digest é imutável.
   asterisk:
+    init: true
     profiles: ["telefonia"]
     mem_limit: 256m
     image: ${ASTERISK_IMAGE:-andrius/asterisk@sha256:927d4c98777149c3380c4f8d0e82b1b1ba9e7b38528f86c1e1593d5a25032f27}
@@ -378,6 +386,7 @@ services:
   # nunca build-only (doutrina de packaging, invariante 1). `build:` fica ao
   # lado só como escape.
   voice-agent:
+    init: true
     profiles: ["telefonia"]
     mem_limit: 512m
     image: ${VOICE_AGENT_IMAGE:-ghcr.io/melgarafael/deskcomm-voice-agent:stable}
@@ -403,6 +412,7 @@ services:
     networks: [internal]
 
   caddy:
+    init: true
     image: caddy:2-alpine
     restart: unless-stopped
     ports:
