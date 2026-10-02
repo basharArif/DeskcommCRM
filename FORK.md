@@ -36,6 +36,7 @@ Re-check each one after every sync.
 | Installer prompts | `hostgator-setup-kit/install.sh`, `_i18n.sh` | English prompt goes through `t()`. |
 | Fast-check selector | `vitest.cercas.ts` | Follows relative `.json` imports as pure data so the i18n guard stays in `pnpm cercas`. |
 | Org-language seeds | migration 0433, `baseline.sql` appendix | Sits before the anon sweep block. |
+| Default brand name | `.env.local` (`APP_NAME=NestComCRM`), `hostgator-setup-kit/install.sh` defaults | Product graphic logo is gated to `DEFAULT_APP_NAME` ("DeskcommCRM") in `lib/branding.ts`; setting `APP_NAME` elsewhere hides the graphic mark and renders plain "NestComCRM" text everywhere via each consumer's existing fallback. Core files untouched. |
 
 ## Rules to keep conflicts small
 
