@@ -22,6 +22,8 @@ import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/wrappers";
 import { audit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { autorizaCron } from "@/lib/auth/cron-auth";
 
@@ -90,11 +92,12 @@ async function handle(req: NextRequest): Promise<Response> {
     if (!claimed) continue; // outro tick já processou esta conversa
 
     if (willReopen) {
+      const idioma = await idiomaDaOrganizacao(c.organization_id);
       await admin.from("agent_inbox_items").insert({
         organization_id: c.organization_id,
         kind: "snooze_expired",
         severity: "warn",
-        title: "Lead não respondeu no prazo",
+        title: traduzir("Lead não respondeu no prazo", idioma),
         ref_kind: "conversation",
         ref_id: c.id,
       });

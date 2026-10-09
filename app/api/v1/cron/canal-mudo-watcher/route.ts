@@ -40,6 +40,8 @@ import {
 } from "@/lib/channels/canal-mudo";
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { autorizaCron } from "@/lib/auth/cron-auth";
 
 export const dynamic = "force-dynamic";
@@ -142,6 +144,7 @@ async function handle(req: NextRequest): Promise<Response> {
     }
     if (desfecho.acao === "aguardar" || aberto) continue;
 
+    const idioma = await idiomaDaOrganizacao(canal.organization_id);
     const { data } = await admin
       .from("agent_inbox_items")
       .insert({
@@ -151,8 +154,8 @@ async function handle(req: NextRequest): Promise<Response> {
         // assim de propósito. Crítico aqui gastaria o alarme que a Central
         // reserva para o que já custou dinheiro ou cliente.
         severity: "warn",
-        title: "Este canal está em modo de teste — a IA não responde ninguém",
-        body: `${CORPO_DO_AVISO}\n\nAssim há ${desfecho.diasMudo} dia(s).`,
+        title: traduzir("Este canal está em modo de teste — a IA não responde ninguém", idioma),
+        body: `${traduzir(CORPO_DO_AVISO, idioma)}\n\n${traduzir("Assim há {n} dia(s).", idioma).replace("{n}", String(desfecho.diasMudo))}`,
         ref_kind: "channel_session",
         ref_id: canal.id,
       })

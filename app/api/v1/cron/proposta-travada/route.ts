@@ -19,6 +19,8 @@ import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/wrappers";
 import { audit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { autorizaCron } from "@/lib/auth/cron-auth";
 
@@ -102,14 +104,17 @@ export async function recuperarPropostasTravadas(
     revertidas += n;
     organizacoesComAviso += 1;
 
+    const idioma = await idiomaDaOrganizacao(orgId);
     const { error: inboxErr } = await admin.from("agent_inbox_items").insert({
       organization_id: orgId,
       kind: "proposta_travada",
       severity: "critical",
-      title: n === 1 ? "Uma proposta não confirmou o envio" : `${n} propostas não confirmaram o envio`,
+      title: n === 1
+        ? traduzir("Uma proposta não confirmou o envio", idioma)
+        : traduzir("{n} propostas não confirmaram o envio", idioma).replace("{n}", String(n)),
       body:
-        `Ficaram mais de ${STUCK_AFTER_MS / 60000} minutos em envio e voltaram a rascunho, com o número mantido. ` +
-        `Verifique a conexão do WhatsApp e reenvie manualmente — nada foi reenviado sozinho.`,
+        traduzir("Ficaram mais de {min} minutos em envio e voltaram a rascunho, com o número mantido. ", idioma).replace("{min}", String(STUCK_AFTER_MS / 60000)) +
+        traduzir("Verifique a conexão do WhatsApp e reenvie manualmente — nada foi reenviado sozinho.", idioma),
       // "proposal" é a chave de `REFERENCIAS_DE_AVISO` (lib/ai/inbox-destino.ts)
       // — não o nome da tabela. Errar aqui faz o botão "Abrir proposta" nunca
       // aparecer (falha fechada, sem erro visível).

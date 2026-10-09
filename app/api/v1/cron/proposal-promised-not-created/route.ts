@@ -13,6 +13,8 @@ import { logger } from "@/lib/logger";
 import { modulosLigados } from "@/lib/instalacao/modulos";
 import { capacidadesLigadas } from "@/lib/organizacao/capacidades";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import type { TaskSourceKind } from "@/lib/tarefas/vocabulario-de-origem";
 
 export const dynamic = "force-dynamic";
@@ -82,10 +84,11 @@ async function rodar(admin: ReturnType<typeof createAdminClient>, requestId: str
       .eq("status", "open")
       .maybeSingle();
     if (!existente) {
+      const idioma = await idiomaDaOrganizacao(t.organization_id);
       const { error: inboxErr } = await admin.from("agent_inbox_items").insert({
         organization_id: t.organization_id, kind: "proposal_promised_not_created", severity: "warn",
-        title: "Uma proposta prometida não foi criada",
-        body: "Um compromisso de enviar proposta venceu e nenhuma proposta foi criada para este negócio.",
+        title: traduzir("Uma proposta prometida não foi criada", idioma),
+        body: traduzir("Um compromisso de enviar proposta venceu e nenhuma proposta foi criada para este negócio.", idioma),
         ref_kind: "lead", ref_id: t.lead_id,
       });
       if (inboxErr) {

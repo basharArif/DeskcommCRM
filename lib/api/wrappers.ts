@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import type { ApiErrorCode } from "@/lib/api/errors";
+import { traduzirTextoDeCodigo } from "@/lib/i18n/dicionario";
 
 // -----------------------------------------------------------------------------
 // Tipos públicos
@@ -59,6 +60,8 @@ export function ok<T>(data: T, opts: OkOptions = {}): NextResponse<ApiSuccess<T>
 
 type FailOptions = {
   details?: unknown;
+  /** Idioma de quem chamou; ausente deixa `message` como o call site escreveu. */
+  locale?: string | null;
   requestId?: string;
   headers?: HeadersInit;
 };
@@ -72,7 +75,7 @@ export function fail(
   const body: ApiError = {
     error: {
       code,
-      message,
+      message: opts.locale ? traduzirTextoDeCodigo(message, opts.locale) : message,
       ...(opts.details !== undefined ? { details: opts.details } : {}),
     },
   };

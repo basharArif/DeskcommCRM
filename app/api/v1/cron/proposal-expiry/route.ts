@@ -12,6 +12,8 @@ import { audit } from "@/lib/audit";
 import { emitLeadActivity } from "@/lib/leads/activity-emitter";
 import { autorizaCron } from "@/lib/auth/cron-auth";
 import { logger } from "@/lib/logger";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { dataIsoNoFuso } from "@/lib/propostas/data-no-fuso";
 import { FUSO_PADRAO, fusoUtilizavel } from "@/lib/tempo/fusos";
@@ -72,11 +74,12 @@ async function rodarVencimento(
       continue;
     }
 
+    const idioma = await idiomaDaOrganizacao(p.organization_id);
     await emitLeadActivity(admin, {
       organizationId: p.organization_id, leadId: p.lead_id, contactId: p.contact_id,
       type: "proposal_expired", sourceModule: "proposals", sourceId: p.id,
       actor: { type: "api_token", id: "cron:proposal-expiry" },
-      reason: "Proposta venceu sem decisão do cliente",
+      reason: traduzir("Proposta venceu sem decisão do cliente", idioma),
     });
 
     // Dedupe: não abre um segundo aviso se já existe um aberto para esta proposta.
@@ -93,8 +96,8 @@ async function rodarVencimento(
         organization_id: p.organization_id,
         kind: "proposal_expired_notice",
         severity: "warn",
-        title: "Uma proposta venceu sem decisão do cliente",
-        body: "O prazo de validade passou e ninguém marcou aceite ou recusa. Reveja a proposta e decida os próximos passos com o cliente.",
+        title: traduzir("Uma proposta venceu sem decisão do cliente", idioma),
+        body: traduzir("O prazo de validade passou e ninguém marcou aceite ou recusa. Reveja a proposta e decida os próximos passos com o cliente.", idioma),
         ref_kind: "proposal",
         ref_id: p.id,
       });

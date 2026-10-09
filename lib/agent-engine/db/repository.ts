@@ -11,6 +11,8 @@
  * devolve linha de outra org (`null` = item de plataforma).
  */
 import type pg from 'pg';
+import { traduzir } from '@/lib/i18n/dicionario';
+import { normalizarIdioma, type Idioma } from '@/lib/i18n/idiomas';
 
 // Vocabulário compartilhado de referências navegáveis; linhas legadas seguem defensivas.
 export type { InboxRefKind } from '@/lib/ai/inbox-destino';
@@ -154,6 +156,17 @@ function one<T>(rows: T[], what: string): T {
  */
 export type InboxDedupe = 'kind' | 'kind_e_ref' | 'kind_e_titulo' | 'kind_ref_e_titulo';
 
+/** Aviso é linha gravada: o idioma da org entra na escrita. Nunca lança; sem org ou sem linha, português. */
+async function idiomaDoTenant(db: Pick<pg.Pool, 'query'>, tenantId: string | null): Promise<Idioma> {
+  if (!tenantId) return 'pt-BR';
+  try {
+    const res = await db.query<{ locale: string | null }>('select locale from organizations where id = $1', [tenantId]);
+    return normalizarIdioma(res?.rows?.[0]?.locale ?? null);
+  } catch {
+    return 'pt-BR';
+  }
+}
+
 /**
  * Abre um aviso na Central.
  *
@@ -190,12 +203,15 @@ export async function insertInboxItem(
   input: { kind: InboxKind; title: string; severity?: InboxItemRow['severity']; body?: string; refKind?: string; refId?: string },
   dedupe?: InboxDedupe,
 ): Promise<InboxItemRow | null> {
+  const idioma = await idiomaDoTenant(db, tenantId);
+  const titulo = traduzir(input.title, idioma);
+  const corpo = input.body === undefined ? null : traduzir(input.body, idioma);
   const valores = [
     tenantId,
     input.kind,
     input.severity ?? 'warn',
-    input.title,
-    input.body ?? null,
+    titulo,
+    corpo,
     input.refKind ?? null,
     input.refId ?? null,
   ];

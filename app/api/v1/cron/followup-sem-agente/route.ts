@@ -48,6 +48,9 @@ import type { NextRequest } from "next/server";
 import { ok, fail } from "@/lib/api/wrappers";
 import { audit } from "@/lib/audit";
 import { logger } from "@/lib/logger";
+import { traduzir } from "@/lib/i18n/dicionario";
+import type { Idioma } from "@/lib/i18n/idiomas";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { autorizaCron } from "@/lib/auth/cron-auth";
 import {
@@ -82,14 +85,17 @@ interface PonteiroDesarmado {
   active_version_id: string | null;
 }
 
-export function corpoDoAviso(nome: string, kind: string): string {
-  const quando = COMO_DISPARA[kind] ?? "pelo gatilho configurado";
-  return (
-    `O fluxo «${nome}» está publicado e dispararia ${quando} — mas nenhum agente publicado ` +
-    `arma ele, e por isso nenhum contato entra. Abra IA › Agentes, escolha o agente que ` +
-    `atende esse número, marque «${nome}» em "follow-ups que arma" e publique a versão. ` +
-    `Este aviso se resolve sozinho quando o vínculo existir.`
-  );
+export function corpoDoAviso(nome: string, kind: string, idioma: Idioma = "pt-BR"): string {
+  const quando = traduzir(COMO_DISPARA[kind] ?? "pelo gatilho configurado", idioma);
+  return traduzir(
+    "O fluxo «{nome}» está publicado e dispararia {quando} — mas nenhum agente publicado " +
+      "arma ele, e por isso nenhum contato entra. Abra IA › Agentes, escolha o agente que " +
+      'atende esse número, marque «{nome}» em "follow-ups que arma" e publique a versão. ' +
+      "Este aviso se resolve sozinho quando o vínculo existir.",
+    idioma,
+  )
+    .replaceAll("{nome}", nome)
+    .replace("{quando}", quando);
 }
 
 /** Sem grafo (ou grafo ilegível) falha fechado: o aviso continua sendo o certo. */
@@ -222,6 +228,7 @@ async function handle(req: NextRequest): Promise<Response> {
       continue;
     }
 
+    const idioma = await idiomaDaOrganizacao(ponteiro.organization_id);
     const { error: erroAviso } = await admin.from("agent_inbox_items").insert({
       organization_id: ponteiro.organization_id,
       kind: KIND,
@@ -229,8 +236,8 @@ async function handle(req: NextRequest): Promise<Response> {
       // está. Mas também não é `info` — há gente que devia estar sendo
       // reengajada e não está, e isso pede uma ação de alguém.
       severity: "warn",
-      title: `O follow-up «${ponteiro.name}» não está disparando`,
-      body: corpoDoAviso(ponteiro.name, ponteiro.kind),
+      title: traduzir("O follow-up «{nome}» não está disparando", idioma).replace("{nome}", ponteiro.name),
+      body: corpoDoAviso(ponteiro.name, ponteiro.kind, idioma),
       ref_kind: "followup_flow",
       ref_id: ponteiro.id,
     });

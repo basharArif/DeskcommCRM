@@ -7,6 +7,8 @@ import { autorizaCron } from "@/lib/auth/cron-auth";
 import { logger } from "@/lib/logger";
 import { modulosLigados, type ModuloOpcional } from "@/lib/instalacao/modulos";
 import { capacidadesLigadas } from "@/lib/organizacao/capacidades";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
@@ -60,10 +62,13 @@ async function rodar(admin: ReturnType<typeof createAdminClient>, requestId: str
       .eq("status", "open")
       .maybeSingle();
     if (!existente) {
+      const idioma = await idiomaDaOrganizacao(org.id);
       const { error: inboxErr } = await admin.from("agent_inbox_items").insert({
         organization_id: org.id, kind: "proposal_acceptance_rate_drop", severity: "warn",
-        title: "A taxa de aceite de propostas caiu",
-        body: `${Math.round(taxa * 100)}% das propostas decididas nos últimos 30 dias foram aceitas — abaixo do piso de ${Math.round(PISO_DE_ACEITE * 100)}%.`,
+        title: traduzir("A taxa de aceite de propostas caiu", idioma),
+        body: traduzir("{taxa}% das propostas decididas nos últimos 30 dias foram aceitas — abaixo do piso de {piso}%.", idioma)
+          .replace("{taxa}", String(Math.round(taxa * 100)))
+          .replace("{piso}", String(Math.round(PISO_DE_ACEITE * 100))),
       });
       if (inboxErr) {
         logger.error("[proposal-acceptance-rate] aviso na Central falhou", { error: inboxErr.message, organization_id: org.id, requestId });

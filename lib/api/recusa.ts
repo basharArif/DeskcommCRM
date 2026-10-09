@@ -15,9 +15,13 @@
 import { ApiError } from "@/lib/api/types";
 import { fail } from "@/lib/api/wrappers";
 
-export function respostaDeRecusa(err: unknown, requestId: string): Response {
+export function respostaDeRecusa(
+  err: unknown,
+  requestId: string,
+  locale?: string | null,
+): Response {
   if (err instanceof ApiError) {
-    return fail(err.code, err.message, err.status, { requestId, details: err.details });
+    return fail(err.code, err.message, err.status, { requestId, details: err.details, locale });
   }
   throw err;
 }

@@ -27,6 +27,7 @@ vi.mock("@/lib/auth/require-role", () => ({ requireRole: deps.role }));
 vi.mock("@/lib/impersonate/support", () => ({ requireSupportWrite: deps.support }));
 vi.mock("@/lib/audit", () => ({ audit: deps.audit }));
 vi.mock("@/lib/supabase/server", () => ({ createClient: deps.client }));
+vi.mock("@/lib/i18n/idiomaDaOrganizacao", () => ({ idiomaDaOrganizacao: async () => "pt-BR" }));
 
 import { POST } from "./route";
 import { MODELOS_DE_FOLLOWUP, modeloPorId } from "@/lib/followup/modelos";

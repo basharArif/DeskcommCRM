@@ -36,6 +36,16 @@ describe("catálogo de modelos de follow-up", () => {
     expect(modeloPorId("nao-existe")).toBeUndefined();
   });
 
+  it("a versão em inglês continua válida e publicável, com os ids intactos", () => {
+    for (const m of MODELOS_DE_FOLLOWUP) {
+      const en = modeloPorId(m.id, "en")!;
+      expect(flowGraphSchema.safeParse(en.grafo).success).toBe(true);
+      expect(validateFlowForPublish(en.grafo).ok).toBe(true);
+      expect(en.grafo.edges).toEqual(m.grafo.edges);
+      expect(en.grafo.nodes.map((n) => n.id)).toEqual(m.grafo.nodes.map((n) => n.id));
+    }
+  });
+
   describe.each(MODELOS_DE_FOLLOWUP.map((m) => [m.id, m] as const))("%s", (_id, modelo) => {
     it("o grafo passa no schema que o banco e o construtor usam", () => {
       const parsed = flowGraphSchema.safeParse(modelo.grafo);

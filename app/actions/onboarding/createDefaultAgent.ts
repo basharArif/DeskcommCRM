@@ -12,6 +12,7 @@ import { audit } from "@/lib/audit";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { aiAgentDefaultSchema, type PromptTemplate } from "@/lib/schemas/onboarding";
 import { publicarMemoriaDaOrg } from "@/lib/ai/memoria-da-org";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import {
   requireOnboardingCtx,
   patchOnboardingState,
@@ -33,9 +34,19 @@ import {
  * que ele entendeu onde está. O ramo é o que o dono respondeu no primeiro passo;
  * quem não respondeu recebe a versão sem ele, e não uma inventada.
  */
-function ondeTrabalha(negocio: string, oQueFaz: string | undefined): string {
-  return oQueFaz ? `${negocio}, que é: ${oQueFaz}` : negocio;
+function ondeTrabalha(negocio: string, oQueFaz: string | undefined, en: boolean): string {
+  if (!oQueFaz) return negocio;
+  return en ? `${negocio}, which is: ${oQueFaz}` : `${negocio}, que é: ${oQueFaz}`;
 }
+
+const PROMPT_BODIES_EN: Record<PromptTemplate, (onde: string) => string> = {
+  ecommerce_friendly: (n) =>
+    `You look after the customers of ${n}. Be warm and approachable, like someone who enjoys helping. Greet them, understand what they need and offer clear options. Confirm the details before acting.`,
+  ecommerce_professional: (n) =>
+    `You look after the customers of ${n}. Be concise, courteous and professional. Get to the point without sounding cold, and always end by pointing to the next step.`,
+  support_minimal: (n) =>
+    `You look after the customers of ${n}. Answer in short sentences, ask only for what is needed, and bring in a team member as soon as the question is beyond what you can handle.`,
+};
 
 const PROMPT_BODIES: Record<PromptTemplate, (onde: string) => string> = {
   ecommerce_friendly: (n) =>
@@ -142,7 +153,10 @@ export async function createDefaultAgent(formData: FormData): Promise<CreateAgen
     oQueFaz = undefined;
   }
 
-  const systemPrompt = PROMPT_BODIES[input.prompt_template](ondeTrabalha(ctx.orgName, oQueFaz));
+  const en = (await idiomaDaOrganizacao(ctx.orgId)) === "en";
+  const systemPrompt = (en ? PROMPT_BODIES_EN : PROMPT_BODIES)[input.prompt_template](
+    ondeTrabalha(ctx.orgName, oQueFaz, en),
+  );
 
   // O agente padrão do onboarding é UM por organização, e o banco já garante
   // isso: `ai_agents_one_default_per_org` é índice único parcial em

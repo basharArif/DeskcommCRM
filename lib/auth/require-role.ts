@@ -114,7 +114,7 @@ export async function requireRole(min: Role, opts: RequireRoleOpts = {}): Promis
   const t = (texto: string) => traduzir(texto, user.idioma);
 
   if (user.support && user.support.status !== "active") {
-    return { ok: false, response: fail("forbidden", "O acompanhamento terminou. Saia para continuar.", 403, { requestId }) };
+    return { ok: false, response: fail("forbidden", t("O acompanhamento terminou. Saia para continuar."), 403, { requestId }) };
   }
   let org: ActiveOrg | null;
   if (organizationId) {
@@ -237,7 +237,7 @@ export async function requireRole(min: Role, opts: RequireRoleOpts = {}): Promis
     });
     return {
       ok: false,
-      response: fail("forbidden_role", `Permissão insuficiente. Requer role >= ${min}.`, 403, {
+      response: fail("forbidden_role", t(`Permissão insuficiente. Requer role >= ${min}.`), 403, {
         requestId,
       }),
     };

@@ -32,6 +32,7 @@ import { instalarModeloSchema, triggerConfigSchema } from "@/lib/followup/api-sc
 import { flowGraphSchema } from "@/lib/followup/graph-schema";
 import { validateFlowForPublish } from "@/lib/followup/validate-publish";
 import { modeloPorId } from "@/lib/followup/modelos";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { traduzir } from "@/lib/i18n/dicionario";
 
 export const dynamic = "force-dynamic";
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     });
   }
 
-  const modelo = modeloPorId(parsed.data.model_id);
+  const modelo = modeloPorId(parsed.data.model_id, await idiomaDaOrganizacao(activeOrg.orgId));
   if (!modelo) {
     return fail("not_found", t("Este modelo não existe mais."), 404, { requestId });
   }

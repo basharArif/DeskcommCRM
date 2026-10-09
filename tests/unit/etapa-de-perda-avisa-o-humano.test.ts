@@ -184,6 +184,7 @@ describe("abrir o aviso na Central", () => {
     const chamadas: Array<{ sql: string; params: unknown[] }> = [];
     const db = {
       query: async (sql: string, params: unknown[]) => {
+        if (sql.includes("from organizations")) return { rows: [] };
         chamadas.push({ sql, params });
         return { rows: [] };
       },
