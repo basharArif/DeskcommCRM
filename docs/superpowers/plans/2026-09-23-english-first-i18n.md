@@ -189,11 +189,11 @@ Per wave:
 
 ### Phase 5 — Non-dictionary surfaces
 
-- [ ] API error messages (`lib/api/errors.ts`) — returned `message` localized by caller locale;
+- [x] API error messages (`lib/api/errors.ts`) — returned `message` localized by caller locale;
       `code` never changes.
-- [ ] E-mail templates (`lib/email/templates/`) — use the recipient org's locale via `marcaDaSaida()` flow.
-- [ ] Notifications, Central/inbox items, cron-generated texts.
-- [ ] AI: system prompt scaffolding and default agent templates in English when org locale is
+- [x] E-mail templates (`lib/email/templates/`) — use the recipient org's locale via `marcaDaSaida()` flow.
+- [x] Notifications, Central/inbox items, cron-generated texts. (queue.ts job_dead, orcamento.ts, event-log/drain + aviso-do-laco skipped on purpose — see log)
+- [x] AI: system prompt scaffolding and default agent templates in English when org locale is
       `en` (`lib/ai/render-system-prompt.ts`, niche templates). Don't translate a customer's own prompt.
 - [ ] Messages auto-sent to leads (opt-out confirmation, handoff notice, reminders) → org locale.
 - [ ] **Opt-out detection:** add English vocabulary (`STOP`, `unsubscribe`, "stop messaging me"…)
@@ -214,7 +214,7 @@ Per wave:
       default English on the fork; `pnpm test:shell`.
 - [x] ⚠️ Ask owner: flip `IDIOMA_PADRAO` to `en`? (approved 2026-09-24; flipped)
 - [ ] Full gates + e2e (`pnpm test:e2e`) with an English org; `vps-fresh-onboarding` flow in English.
-- [ ] Release fragment in `.changes/` (`capacidade_nova`).
+- [x] Release fragment in `.changes/` (`capacidade_nova`).
 
 ### Phase 7 — Multi-language (after English)
 
@@ -273,3 +273,4 @@ has no CHECK constraint rejecting `en` — none found on 2026-09-23.)
 | 2026-09-24 | Phase 3+4 + Phase 5 partial | feat/i18n-phase-3-tooling | Tooling committed; en.json 7,416/7,416 keys, independently reviewed (76 fixes). Phase 5 slices: English opt-out vocab, invite e-mail, lead handoff notices, prompt scaffolding, Entrada/Saída context keys (`@@`). Open: browser proof, Central/cron texts, GoTrue mails, reentry/follow-up/niche templates, seed data (migration). |
 | 2026-09-24 | Phase 5 seed data | feat/i18n-phase-3-tooling | Migration 0392: `fn_seed_default_pipeline_for_org` + `fn_semear_tipos_de_agendamento` localize by `organizations.locale` (en only; pt/es identical, slugs unchanged); signup provisioning now writes user locale to the org. |
 | 2026-09-24 | Phase 6 default flip | feat/i18n-phase-3-tooling | `IDIOMA_PADRAO`, bootstrap-owner, both installers (English = option 1/Enter), `.env.example`, external provisioning org insert now writes `locale`. No schema change: DB column default stays `pt-BR`; existing rows untouched. |
+| 2026-10-10 | Upstream v1.78 sync + catch-up | product (04ed08374..4ec34d855) | Merged 2447 upstream commits; 866 new keys translated (en.json 100%, 22 reviewer fixes); Phase 5 completed: fail() localizes error.message from Accept-Language (Next request store, fails safe), Central/cron/inbox writers by org locale, follow-up templates + default agent + prospecting prompt in EN, GoTrue/alarm e-mails (`?lang=`), 73 page `<title>`s + root metadata via `metadadosLocalizados()`. Skipped on purpose: `queue.ts` job_dead (no tenant id before SQL), `orcamento.ts` (per-LLM-call hot path), `event-log/drain.ts` + `aviso-do-laco.ts` (titles are dedupe keys). Open: profile-vs-browser locale for API errors, static GoTrue html templates, browser proof pass 2, `test:db` for 0433, e2e. |
