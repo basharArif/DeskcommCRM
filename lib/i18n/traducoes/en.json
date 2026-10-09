@@ -790,7 +790,7 @@
   "alerta": "alert",
   "Alerta": "Alert",
   "Alerta (>50%)": "Alert (>50%)",
-  "Alerta IA: orçamento atingiu {pct} — DeskcommCRM": "AI alert: budget reached {pct} — DeskcommCRM",
+  "Alerta IA: orçamento atingiu {pct}": "AI alert: budget reached {pct}",
   "alertas": "alerts",
   "Alertas": "Alerts",
   "alertas adicionais": "additional alerts",

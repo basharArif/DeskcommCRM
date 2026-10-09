@@ -13777,7 +13777,7 @@ export const DICIONARIO: Traducoes = {
   "Redefinir sua senha": { es: "Restablece tu contraseña" },
   "Recebemos um pedido para redefinir a senha da sua conta no {marca}. Clique no botão abaixo para escolher uma nova.": { es: "Recibimos una solicitud para restablecer la contraseña de tu cuenta en {marca}. Haz clic en el botón de abajo para elegir una nueva." },
   "Se não foi você quem pediu, ignore este e-mail — sua senha continua a mesma.": { es: "Si no fuiste tú quien lo pidió, ignora este correo: tu contraseña sigue siendo la misma." },
-  "Alerta IA: orçamento atingiu {pct} — DeskcommCRM": { es: "Alerta de IA: el presupuesto alcanzó {pct} — DeskcommCRM" },
+  "Alerta IA: orçamento atingiu {pct}": { es: "Alerta de IA: el presupuesto alcanzó {pct}" },
   "Organização:": { es: "Organización:" },
   "Orçamento mensal de IA atingiu {pct}": { es: "El presupuesto mensual de IA alcanzó {pct}" },
   "Orçamento mensal de IA atingiu {pct}.": { es: "El presupuesto mensual de IA alcanzó {pct}." },

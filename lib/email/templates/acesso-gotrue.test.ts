@@ -62,6 +62,12 @@ describe("moldes de acesso do GoTrue", () => {
     });
   }
 
+  it("o idioma pedido vai para o atributo lang", () => {
+    expect(montarTemplateDeAcesso("recovery", MARCA, "en")).toContain('<html lang="en');
+    expect(montarTemplateDeAcesso("recovery", MARCA, "es")).toContain('<html lang="es');
+    expect(montarTemplateDeAcesso("recovery", MARCA, "es")).toContain("{{ .TokenHash }}");
+  });
+
   it("sem logo configurado, nada é desenhado no lugar", () => {
     const html = montarTemplateDeAcesso("confirmation", { ...MARCA, logoUrl: null });
     expect(html).not.toContain("<img");

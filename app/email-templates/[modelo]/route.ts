@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { marcaDaSaida } from "@/lib/branding/saida";
+import { normalizarIdioma } from "@/lib/i18n/idiomas";
 import {
   MODELOS_DE_ACESSO,
   montarTemplateDeAcesso,
@@ -53,7 +54,7 @@ import {
 export const dynamic = "force-dynamic";
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ modelo: string }> },
 ): Promise<NextResponse> {
   const { modelo } = await params;
@@ -68,7 +69,11 @@ export async function GET(
   // do produto, que é uma instalação funcionando.
   const marca = await marcaDaSaida(null);
 
-  return new NextResponse(montarTemplateDeAcesso(modelo as ModeloDeAcesso, marca), {
+  // O GoTrue busca um molde por instalação, sem saber quem vai receber: o idioma
+  // é o padrão do produto, ou o do `?lang=` que o operador pôs na URL do molde.
+  const idioma = normalizarIdioma(request.nextUrl.searchParams.get("lang"));
+
+  return new NextResponse(montarTemplateDeAcesso(modelo as ModeloDeAcesso, marca, idioma), {
     status: 200,
     headers: {
       "content-type": "text/html; charset=utf-8",
