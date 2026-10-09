@@ -12,6 +12,8 @@ import { chaveDePlataforma } from "@/lib/ai/runtime/agent";
 import { PROVIDERS } from "@/lib/ai/agents/validation";
 import { capabilitiesOf } from "@/lib/channels/capabilities";
 import type { ChannelProvider } from "@/lib/channels/types";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
+import type { Idioma } from "@/lib/i18n/idiomas";
 import { prospectingAgentSetupSchema, type ProspectingAgentSetupInput } from "./agent-setup-schema";
 import { agentSessionLock, agentSetupSessionSchema } from "./agent-session-schema";
 
@@ -32,7 +34,27 @@ export function setupAgentId(orgId: string, campaignId: string, requestId: strin
   const h = hash(["prospecting-agent", orgId, campaignId, requestId]);
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }
-export function prospectingAgentPrompt(input: ProspectingAgentSetupInput) {
+export function prospectingAgentPrompt(
+  input: ProspectingAgentSetupInput,
+  idioma: Idioma = "pt-BR",
+) {
+  if (idioma === "en") {
+    const toneEn = {
+      cordial: "warm and welcoming",
+      professional: "professional and consultative",
+      direct: "direct and to the point",
+    }[input.tone];
+    return `You are ${input.name}, a commercial AI assistant. Talk in English, in a ${toneEn} tone, with short messages and one question at a time.
+Be transparent about who you are. The contact comes from research into public business information; never claim a registration, order or consent the person has not confirmed.
+Offer and goal defined by the owner:
+${input.instruction}
+Qualification criteria:
+${input.qualification}
+Find out the need before proposing a solution. Do not invent prices, benefits, results, availability or information about the company. When information is missing, say so and hand over to a person.
+Respect refusals and requests to stop: do not insist, and hand over to a human. A request for a human must be honored immediately.
+The contact and the opportunity for this campaign are already in the CRM. Look up the existing opportunity, note only confirmed facts and do not create duplicates. Use only the pipeline ${input.pipeline_id}. The initial stage is ${input.stage_id}; move to ${input.qualified_stage_id} ONLY when the conversation proves the criteria above. A sent message or a received reply, on their own, do not mean qualification.
+Use the available tools to record facts and move the opportunity; never claim you recorded something if the tool did not confirm it. The campaign instructions in the conversation context detail the current approach.`;
+  }
   const tone = {
     cordial: "cordial e acolhedor",
     professional: "profissional e consultivo",
@@ -304,8 +326,9 @@ export async function setupProspectingAgent(
     } else {
       await preflight(db, context.orgId, input, agentId, options.prepareOnly);
       const model = await resolveSetupModel(db, context.orgId, input.channel_session_id);
+      const idioma = await idiomaDaOrganizacao(context.orgId);
       const version = versionCreateSchema.parse({
-        system_prompt: prospectingAgentPrompt(input),
+        system_prompt: prospectingAgentPrompt(input, idioma),
         provider: model.provider,
         model: model.model,
         credential_id: model.credential_id,

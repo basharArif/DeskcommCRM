@@ -28,9 +28,12 @@ import {
 } from "@/lib/recursos-opcionais/catalogo";
 import { fontesDaEmpresa } from "@/lib/recursos-opcionais/estado";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Recursos opcionais" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Recursos opcionais") }));
+}
 
 const PAPEL_QUE_DECIDE: Record<Exclude<RecursoOpcional["quemDecide"], "dono_do_servidor">, Role> = {
   admin: "admin",
@@ -49,7 +52,8 @@ export default async function RecursosOpcionaisPage() {
   const fontes = await fontesDaEmpresa(createAdminClient(), activeOrg.orgId);
   const podeAbrir = (r: RecursoOpcional): boolean =>
     dono ||
-    (r.quemDecide !== "dono_do_servidor" && ROLE_RANK[activeOrg.role] >= ROLE_RANK[PAPEL_QUE_DECIDE[r.quemDecide]]);
+    (r.quemDecide !== "dono_do_servidor" &&
+      ROLE_RANK[activeOrg.role] >= ROLE_RANK[PAPEL_QUE_DECIDE[r.quemDecide]]);
 
   const modulos = RECURSOS_OPCIONAIS.filter((r) => r.nivel === "instalacao" && r.modulo);
   const daEmpresa = RECURSOS_OPCIONAIS.filter((r) => r.nivel === "organizacao");
@@ -79,7 +83,9 @@ export default async function RecursosOpcionaisPage() {
   return (
     <div className="flex h-full flex-col gap-8 overflow-y-auto p-6">
       <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{traduzir("Recursos opcionais", idioma)}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {traduzir("Recursos opcionais", idioma)}
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           {traduzir(
             "Tudo o que se liga e desliga, num lugar só. Cada recurso continua sendo ligado na tela dele: o botão Ajustar leva até lá.",
@@ -117,7 +123,9 @@ export default async function RecursosOpcionaisPage() {
                       : traduzir(ROTULO_DO_ESTADO[estado], idioma)
                 }
                 ajustar={
-                  estado === "ligado" && porta && (dono || ROLE_RANK[activeOrg.role] >= ROLE_RANK[porta.minRole ?? "viewer"])
+                  estado === "ligado" &&
+                  porta &&
+                  (dono || ROLE_RANK[activeOrg.role] >= ROLE_RANK[porta.minRole ?? "viewer"])
                     ? porta.href
                     : null
                 }

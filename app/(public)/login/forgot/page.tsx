@@ -4,8 +4,11 @@ import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
 import { traduzir } from "@/lib/i18n/dicionario";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Recuperar senha" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Recuperar senha") }));
+}
 
 export default async function ForgotPasswordPage() {
   const supabase = await createClient();

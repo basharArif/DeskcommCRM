@@ -3,7 +3,11 @@ import { notFound } from "next/navigation";
 import { LinhaDoRecurso } from "@/components/recursos-opcionais/LinhaDoRecurso";
 import { loadAuthUser } from "@/lib/auth/server";
 import { carregarComportamentoDaInstalacao } from "@/lib/instalacao/comportamento-servidor";
-import { MODULOS_OPCIONAIS_POR_FLAG, modulosLigados, type ModuloOpcional } from "@/lib/instalacao/modulos";
+import {
+  MODULOS_OPCIONAIS_POR_FLAG,
+  modulosLigados,
+  type ModuloOpcional,
+} from "@/lib/instalacao/modulos";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { traduzir } from "@/lib/i18n/dicionario";
 import {
@@ -15,8 +19,11 @@ import {
 import { detectarServidor } from "@/lib/recursos-opcionais/estado";
 
 import { FormularioDeComportamento, FormularioDeModulos } from "./_form";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Recursos opcionais" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Recursos opcionais") }));
+}
 
 /** Para o que depende do servidor, a voz é "configurado", não "ligado". */
 const ROTULO_NO_SERVIDOR: Record<EstadoDoRecurso, string> = {
@@ -92,7 +99,9 @@ export default async function Page() {
   return (
     <div className="space-y-8">
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">{traduzir("Recursos opcionais", idioma)}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {traduzir("Recursos opcionais", idioma)}
+        </h1>
         <p className="text-sm text-muted-foreground">
           {traduzir(
             "Tudo o que se liga e desliga nesta instalação, num lugar só. Vale para todas as empresas hospedadas aqui.",

@@ -18,8 +18,11 @@ import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
 import { ROLE_RANK } from "@/lib/auth/types";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { createClient } from "@/lib/supabase/server";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Dados externos" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Dados externos") }));
+}
 export const dynamic = "force-dynamic";
 
 const COLUNAS_SEGURAS =
@@ -45,7 +48,9 @@ export default async function IntegracaoDeDadosPage() {
   return (
     <div className="flex h-full flex-col gap-6 overflow-y-auto p-6">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight">{traduzir("Dados externos", idioma)}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">
+          {traduzir("Dados externos", idioma)}
+        </h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
           {traduzir(
             "Conecte um banco de dados de outro sistema — o seu segundo CRM, um ERP, uma planilha em PostgreSQL — e o agente passa a consultá-lo em tempo real. A conexão é sempre somente leitura: nada que o agente faz altera o banco de origem.",

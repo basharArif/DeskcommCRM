@@ -11,7 +11,9 @@
 import { NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import type { ApiErrorCode } from "@/lib/api/errors";
+import { workUnitAsyncStorage } from "next/dist/server/app-render/work-unit-async-storage.external";
 import { traduzirTextoDeCodigo } from "@/lib/i18n/dicionario";
+import { parseAcceptLanguage } from "@/lib/i18n/idiomas";
 
 // -----------------------------------------------------------------------------
 // Tipos públicos
@@ -60,11 +62,25 @@ export function ok<T>(data: T, opts: OkOptions = {}): NextResponse<ApiSuccess<T>
 
 type FailOptions = {
   details?: unknown;
-  /** Idioma de quem chamou; ausente deixa `message` como o call site escreveu. */
+  /** Idioma de quem chamou; `undefined` usa o Accept-Language da requisição em curso, `null` mantém o texto do call site. */
   locale?: string | null;
   requestId?: string;
   headers?: HeadersInit;
 };
+
+/**
+ * Idioma da requisição em curso, lido do store de request do Next (sem I/O).
+ * Fora de uma requisição, ou se a API interna mudar, devolve null.
+ */
+function idiomaDaRequisicaoEmCurso(): string | null {
+  try {
+    const store = workUnitAsyncStorage.getStore();
+    if (store?.type !== "request") return null;
+    return parseAcceptLanguage(store.headers.get("accept-language"));
+  } catch {
+    return null;
+  }
+}
 
 export function fail(
   code: ApiErrorCode | (string & {}),
@@ -72,10 +88,11 @@ export function fail(
   status: number,
   opts: FailOptions = {},
 ): NextResponse<ApiError> {
+  const locale = opts.locale === undefined ? idiomaDaRequisicaoEmCurso() : opts.locale;
   const body: ApiError = {
     error: {
       code,
-      message: opts.locale ? traduzirTextoDeCodigo(message, opts.locale) : message,
+      message: locale ? traduzirTextoDeCodigo(message, locale) : message,
       ...(opts.details !== undefined ? { details: opts.details } : {}),
     },
   };

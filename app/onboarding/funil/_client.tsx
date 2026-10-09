@@ -27,8 +27,12 @@ export function QuadroClient({
   sugestao: Sugestao;
 }) {
   const t = useT();
+  const doPacote = (p: PropostaDeFunil): PropostaDeFunil => ({
+    nome: t(p.nome),
+    etapas: p.etapas.map((e) => ({ ...e, nome: t(e.nome) })),
+  });
   const inicial: PropostaDeFunil =
-    sugestao.origem === "ia" ? sugestao.proposta : sugestao.pacote.proposta;
+    sugestao.origem === "ia" ? sugestao.proposta : doPacote(sugestao.pacote.proposta);
 
   const [quadro, setQuadro] = useState<PropostaDeFunil>(inicial);
   const [origem, setOrigem] = useState<"ia" | "pacote">(sugestao.origem);
@@ -70,7 +74,7 @@ export function QuadroClient({
   function usarPacote(id: string) {
     const p = PACOTES.find((x) => x.id === id);
     if (!p) return;
-    setQuadro(p.proposta);
+    setQuadro(doPacote(p.proposta));
     // A origem acompanha: o resumo do onboarding registra de onde o quadro veio,
     // e manter "ia" depois de a pessoa escolher outro seria registrar mentira.
     setOrigem("pacote");
@@ -212,7 +216,7 @@ export function QuadroClient({
               >
                 <span className="font-medium">{t(p.comoSeApresenta)}</span>
                 <span className="mt-1 block text-xs text-muted-foreground">
-                  {p.proposta.etapas.map((e) => e.nome).join(" → ")}
+                  {p.proposta.etapas.map((e) => t(e.nome)).join(" → ")}
                 </span>
               </button>
             ))}

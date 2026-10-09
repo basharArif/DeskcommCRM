@@ -6,8 +6,11 @@ import { branding } from "@/lib/branding";
 import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
 import { traduzir } from "@/lib/i18n/dicionario";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Entrar" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Entrar") }));
+}
 
 export default async function LoginPage({
   searchParams,
@@ -151,10 +154,7 @@ export default async function LoginPage({
         </p>
         <p className="text-muted-foreground">
           {t("Não tem conta?")}{" "}
-          <Link
-            href="/signup"
-            className="font-medium text-foreground underline underline-offset-4"
-          >
+          <Link href="/signup" className="font-medium text-foreground underline underline-offset-4">
             {t("Criar conta")}
           </Link>
         </p>

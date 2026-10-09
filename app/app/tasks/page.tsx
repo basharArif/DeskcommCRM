@@ -1,13 +1,15 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
 import { ROLE_RANK } from "@/lib/auth/types";
 
 import { TarefasClient } from "./_components/TarefasClient";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Tarefas" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Tarefas") }));
+}
 
 /**
  * TAREFAS — "ligar de volta na terça", num lugar que não é a memória de ninguém.
@@ -31,7 +33,8 @@ export default async function TarefasPage() {
   const activeOrg = await resolveActiveOrg(user);
   if (!activeOrg) redirect("/app");
 
-  const podeEditar = (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.agent;
+  const podeEditar =
+    (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.agent;
 
   return <TarefasClient podeEditar={podeEditar} />;
 }

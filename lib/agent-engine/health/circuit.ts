@@ -32,6 +32,9 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import type pg from 'pg';
+import { traduzir } from '@/lib/i18n/dicionario';
+import { idiomaDoTenant } from '../db/idioma-do-tenant';
+import type { Idioma } from '@/lib/i18n/idiomas';
 
 import type { Logger } from '../obs/logger';
 import { enforceHolds } from '../edge/crm/session-watchdog';
@@ -171,28 +174,40 @@ function pct(fraction: number): string {
 }
 
 /** Texto do diagnóstico do inbox_item (pt-br; SÓ taxas/contagens — PII jamais). */
-function diagnosisBody(reason: HoldReason, rates: SessionRates, k: HealthKnobs): string {
+function diagnosisBody(reason: HoldReason, rates: SessionRates, k: HealthKnobs, idioma: Idioma = 'pt-BR'): string {
   if (reason === 'go_live') {
-    return (
+    return traduzir(
       'Número novo aguardando liberação (go-live). Os disparos que o sistema começa — follow-up ' +
-      'e cadência de prospecção — nascem em espera por segurança: a fila retém, nada é perdido. ' +
-      'RESPONDER quem te escreveu continua funcionando normalmente. Resolva este item quando o ' +
-      'número estiver pronto para disparar.'
+        'e cadência de prospecção — nascem em espera por segurança: a fila retém, nada é perdido. ' +
+        'RESPONDER quem te escreveu continua funcionando normalmente. Resolva este item quando o ' +
+        'número estiver pronto para disparar.',
+      idioma,
     );
   }
   if (reason === 'block_rate') {
     const rate = rates.totalSends > 0 ? rates.blockedSends / rates.totalSends : 0;
     return (
-      `Bloqueios em ${pct(rate)} dos ${rates.totalSends} últimos envios do número ` +
-      `(limiar ${pct(k.blockRateThreshold)}). Outbound em espera automática — a fila retém, nada é perdido. ` +
-      'Verifique o número (possível queima do WhatsApp) e resolva este item para retomar.'
+      traduzir(
+        'Bloqueios em {taxa} dos {total} últimos envios do número (limiar {limiar}). Outbound em espera automática — a fila retém, nada é perdido. ',
+        idioma,
+      )
+        .replace('{taxa}', pct(rate))
+        .replace('{total}', String(rates.totalSends))
+        .replace('{limiar}', pct(k.blockRateThreshold)) +
+      traduzir('Verifique o número (possível queima do WhatsApp) e resolva este item para retomar.', idioma)
     );
   }
   const rate = rates.sentLeads > 0 ? rates.respondedLeads / rates.sentLeads : 0;
   return (
-    `Taxa de resposta em ${pct(rate)} (${rates.respondedLeads} de ${rates.sentLeads} leads contatados ` +
-    `responderam; piso ${pct(k.responseRateFloor)}). Outbound em espera automática — a fila retém. ` +
-    'Verifique a abordagem/o número e resolva este item para retomar.'
+    traduzir(
+      'Taxa de resposta em {taxa} ({respondidos} de {contatados} leads contatados responderam; piso {piso}). Outbound em espera automática — a fila retém. ',
+      idioma,
+    )
+      .replace('{taxa}', pct(rate))
+      .replace('{respondidos}', String(rates.respondedLeads))
+      .replace('{contatados}', String(rates.sentLeads))
+      .replace('{piso}', pct(k.responseRateFloor)) +
+    traduzir('Verifique a abordagem/o número e resolva este item para retomar.', idioma)
   );
 }
 
@@ -276,6 +291,7 @@ async function evaluateSession(
         [tenantId, channelSessionId, reason],
       );
       delta.held = 1;
+      const idioma = await idiomaDoTenant(client, tenantId);
       // inbox item 1× por episódio: só cria se não há item aberto do número (dedup).
       const ins = await client.query(
         `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind, ref_id)
@@ -287,10 +303,13 @@ async function evaluateSession(
         [
           tenantId,
           reason === 'go_live' ? 'info' : 'warn',
-          reason === 'go_live'
-            ? 'Número novo aguardando liberação (go-live)'
-            : 'Saúde do número degradada — outbound em espera automática',
-          diagnosisBody(reason, rates, k),
+          traduzir(
+            reason === 'go_live'
+              ? 'Número novo aguardando liberação (go-live)'
+              : 'Saúde do número degradada — outbound em espera automática',
+            idioma,
+          ),
+          diagnosisBody(reason, rates, k, idioma),
           HEALTH_HOLD_REF_KIND,
           channelSessionId,
         ],

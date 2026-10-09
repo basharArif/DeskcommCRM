@@ -20,6 +20,8 @@ import {
   type MarcaResolvida,
 } from "@/lib/branding/resolve";
 import { env } from "@/lib/env";
+import { idiomaDaRequisicao } from "@/lib/i18n/metadados";
+import { traduzir } from "@/lib/i18n/dicionario";
 import { logger } from "@/lib/logger";
 import { ThemeProvider } from "@/lib/theme";
 import { Providers } from "./providers";
@@ -32,8 +34,16 @@ import "./globals.css";
 // então use sempre a custom property (--font-atkinson), nunca o nome da fonte.
 const atkinson = localFont({
   src: [
-    { path: "./fonts/atkinson-hyperlegible-400-latin-latin-ext.woff2", weight: "400", style: "normal" },
-    { path: "./fonts/atkinson-hyperlegible-700-latin-latin-ext.woff2", weight: "700", style: "normal" },
+    {
+      path: "./fonts/atkinson-hyperlegible-400-latin-latin-ext.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "./fonts/atkinson-hyperlegible-700-latin-latin-ext.woff2",
+      weight: "700",
+      style: "normal",
+    },
   ],
   display: "swap",
   variable: "--font-atkinson",
@@ -86,16 +96,19 @@ async function marcaResolvida(): Promise<{
 export async function generateMetadata(): Promise<Metadata> {
   const { linha, marca } = await marcaResolvida();
   const { name } = marca;
+  const idioma = await idiomaDaRequisicao();
+  const t = (pt: string) => traduzir(pt, idioma);
   return {
     title: {
-      default: `${name} — atendimento e vendas por WhatsApp com agentes de IA`,
+      default: `${name} — ${t("atendimento e vendas por WhatsApp com agentes de IA")}`,
       template: `%s · ${name}`,
     },
-    description:
+    description: t(
       "Centralize o atendimento por WhatsApp num funil só. Agentes de IA resolvem o que dá pra resolver e passam para o time humano o que importa — com tudo registrado. Multi-tenant, LGPD-nativo, feito para operações brasileiras.",
+    ),
     applicationName: name,
     authors: [{ name }],
-    keywords: ["CRM", "atendimento", "WhatsApp", "IA conversacional", "LGPD", "multi-tenant"],
+    keywords: t("CRM, atendimento, WhatsApp, IA conversacional, LGPD, multi-tenant").split(", "),
     robots: { index: false, follow: false },
     // Sem esta linha o navegador pede `/favicon.ico`, que não existe: medido em
     // produção, o 404 é a `app/not-found.tsx` INTEIRA (19.435 bytes de HTML)

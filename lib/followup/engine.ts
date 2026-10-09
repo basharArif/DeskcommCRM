@@ -19,6 +19,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { idsDoContatoEGemeos } from "@/lib/channels/contato-por-telefone";
 import { logger } from "@/lib/logger";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 
 import { flowGraphSchema, type FlowGraph, type FlowNode, type ReplySaveTo } from "./graph-schema";
 import {
@@ -989,11 +991,12 @@ export function createSupabaseAdminClient(admin: SupabaseClient): AdminClient {
       return data?.name ?? null;
     },
     async insertDeadInboxItem(item) {
+      const idioma = await idiomaDaOrganizacao(item.organization_id);
       const { error } = await admin.from("agent_inbox_items").insert({
         organization_id: item.organization_id,
         kind: "followup_dead",
         severity: "warn",
-        title: item.title,
+        title: traduzir(item.title, idioma),
         body: item.body,
         ref_kind: "followup_enrollment",
         ref_id: item.ref_id,
@@ -1080,6 +1083,7 @@ export function createSupabaseAdminClient(admin: SupabaseClient): AdminClient {
         if ((contato as { is_anonymized: boolean | null } | null)?.is_anonymized === true) return;
       }
 
+      const idioma = await idiomaDaOrganizacao(item.organization_id);
       const { error } = await admin.from("agent_inbox_items").insert({
         organization_id: item.organization_id,
         // Reusa o kind da 0224 (mesma família: "a recuperação desta falta
@@ -1087,10 +1091,12 @@ export function createSupabaseAdminClient(admin: SupabaseClient): AdminClient {
         // Central já sabe renderizar `ref_kind='appointment'`.
         kind: "appointment_recovery_review",
         severity: "warn",
-        title: "Cliente faltou e não respondeu à recuperação",
-        body:
+        title: traduzir("Cliente faltou e não respondeu à recuperação", idioma),
+        body: traduzir(
           "As mensagens de reengajamento pós-falta foram enviadas e o cliente não respondeu. " +
-          "Decida o próximo passo e mova o card no funil.",
+            "Decida o próximo passo e mova o card no funil.",
+          idioma,
+        ),
         ref_kind: "appointment",
         ref_id: item.appointment_id,
         appointment_revision: item.appointment_revision,

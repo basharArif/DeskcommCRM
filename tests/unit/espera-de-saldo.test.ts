@@ -140,7 +140,7 @@ describe("o que vai para o banco", () => {
     ]);
     await avisarFaltaDeSaldo(db, "org-1", new Error(ANTHROPIC));
     expect(consultas[1]?.params).toEqual(["org-1", "anthropic"]);
-    const insert = consultas[2]!;
+    const insert = consultas[3]!;
     expect(insert.sql).toMatch(/where not exists/);
     expect(insert.params.slice(0, 7)).toEqual([
       "org-1",
@@ -157,9 +157,9 @@ describe("o que vai para o banco", () => {
   });
 
   it("com a chave da instalação (sem credencial da organização) o aviso nasce sem destino", async () => {
-    const { db, consultas } = bancoFalso([[/from organizations/, [{ locale: null }]]]);
+    const { db, consultas } = bancoFalso([[/from organizations/, [{ locale: "pt-BR" }]]]);
     await avisarFaltaDeSaldo(db, "org-1", new Error(ANTHROPIC));
-    expect(consultas[2]?.params.slice(3, 7)).toEqual([
+    expect(consultas[3]?.params.slice(3, 7)).toEqual([
       "A IA está sem saldo no provedor",
       expect.stringContaining("Provedor: anthropic"),
       null,

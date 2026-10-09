@@ -14,12 +14,15 @@ import { IdiomaProvider } from "@/lib/i18n/IdiomaProvider";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { ehOperante } from "@/lib/organizacao/operante";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Conta suspensa",
-};
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({
+    title: t("Conta suspensa"),
+  }));
+}
 
 const PEDIDO = z.uuid();
 
@@ -102,7 +105,7 @@ export default async function AccountSuspendedPage({
               {t("Sua conta está suspensa. Entre em contato com")}{" "}
               <a
                 href={`mailto:${suporte}`}
-                className="underline underline-offset-4 hover:text-foreground transition-colors"
+                className="underline underline-offset-4 transition-colors hover:text-foreground"
               >
                 {suporte}
               </a>{" "}

@@ -8,8 +8,11 @@ import { traduzir } from "@/lib/i18n/dicionario";
 
 import { FormularioDeCadastro } from "./_form";
 import { PedidosPendentes } from "./_pedidos";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Cadastro na instalação" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Cadastro na instalação") }));
+}
 export const dynamic = "force-dynamic";
 
 /**

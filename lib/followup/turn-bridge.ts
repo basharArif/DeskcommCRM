@@ -17,6 +17,8 @@ import { requireCurrentServiceBoundary } from "@/lib/atendimento/fronteira-serve
  * rota de cron).
  */
 import type pg from "pg";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDoTenant } from "@/lib/agent-engine/db/idioma-do-tenant";
 
 import type { AdminClient, EnrollmentPatch } from "./engine";
 import { flowGraphSchema } from "./graph-schema";
@@ -435,10 +437,11 @@ export function createPgAdminClient(pool: pg.Pool): TurnBridgeAdminClient {
       return rows[0]?.name ?? null;
     },
     async insertDeadInboxItem(item) {
+      const idioma = await idiomaDoTenant(pool, item.organization_id);
       await pool.query(
         `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind, ref_id)
          values ($1, 'followup_dead', 'warn', $2, $3, 'followup_enrollment', $4)`,
-        [item.organization_id, item.title, item.body, item.ref_id],
+        [item.organization_id, traduzir(item.title, idioma), item.body, item.ref_id],
       );
     },
     async abrirAvisoRecuperacaoEsgotada(item) {
@@ -467,12 +470,13 @@ export function createPgAdminClient(pool: pg.Pool): TurnBridgeAdminClient {
       //
       // `on conflict do nothing` casa o índice parcial da 0224
       // (inbox_appointment_revision_unique): repetir num reprocesso é no-op.
+      const idioma = await idiomaDoTenant(pool, item.organization_id);
       await pool.query(
         `insert into agent_inbox_items
            (organization_id, kind, severity, title, body, ref_kind, ref_id, appointment_revision)
          select $1, 'appointment_recovery_review', 'warn',
-                'Cliente faltou e não respondeu à recuperação',
-                'As mensagens de reengajamento pós-falta foram enviadas e o cliente não respondeu. Decida o próximo passo e mova o card no funil.',
+                $4,
+                $5,
                 'appointment', a.id, $3
            from calendar_appointments a
            join contacts c
@@ -484,7 +488,16 @@ export function createPgAdminClient(pool: pg.Pool): TurnBridgeAdminClient {
          on conflict (organization_id, ref_id, appointment_revision, kind)
            where ref_kind = 'appointment' and appointment_revision is not null
            do nothing`,
-        [item.organization_id, item.appointment_id, item.appointment_revision],
+        [
+          item.organization_id,
+          item.appointment_id,
+          item.appointment_revision,
+          traduzir('Cliente faltou e não respondeu à recuperação', idioma),
+          traduzir(
+            'As mensagens de reengajamento pós-falta foram enviadas e o cliente não respondeu. Decida o próximo passo e mova o card no funil.',
+            idioma,
+          ),
+        ],
       );
     },
     async persistirRespostaFollowup(input) {

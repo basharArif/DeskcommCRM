@@ -1,5 +1,7 @@
 import { protecaoAgendaSupabase } from "@/lib/agenda/protecao-followup";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 
 import { classifyRisk, resolveStageWindow, type RiskBucket } from "@/lib/leads/risk-radar";
 import { sinceDoBucket } from "@/lib/leads/risk-since";
@@ -240,6 +242,7 @@ export async function semeiaEstadosDeRisco(
   if (jaAberto) {
     itemDeCaixaId = (jaAberto as { id: string }).id;
   } else if (emRisco > 0) {
+    const idioma = await idiomaDaOrganizacao(organizationId);
     const { data: item } = await admin
       .from("agent_inbox_items")
       .insert({
@@ -248,12 +251,20 @@ export async function semeiaEstadosDeRisco(
         severity: emRisco > 10 ? "warn" : "info",
         // A AÇÃO VAI NO TÍTULO. "48 negócios em risco" é um número e não move
         // ninguém; o item precisa dizer o que fazer com ele.
-        title: `Revise ${emRisco} ${emRisco === 1 ? "negócio parado" : "negócios parados"} e decida quais encerrar`,
+        title: traduzir(
+          emRisco === 1
+            ? "Revise {n} negócio parado e decida quais encerrar"
+            : "Revise {n} negócios parados e decida quais encerrar",
+          idioma,
+        ).replace("{n}", String(emRisco)),
         body:
-          `${porBucket.critico} sem resposta há muito tempo e ${porBucket.em_risco} esfriando. ` +
-          `Eles já estavam assim antes de o sistema passar a acompanhar — por isso ` +
-          `aparecem juntos agora, e não porque algo aconteceu hoje. ` +
-          `Encerrar o que morreu é o que faz o radar voltar a significar alguma coisa.`,
+          traduzir("{critico} sem resposta há muito tempo e {em_risco} esfriando. ", idioma)
+            .replace("{critico}", String(porBucket.critico))
+            .replace("{em_risco}", String(porBucket.em_risco)) +
+          traduzir(
+            "Eles já estavam assim antes de o sistema passar a acompanhar — por isso aparecem juntos agora, e não porque algo aconteceu hoje. Encerrar o que morreu é o que faz o radar voltar a significar alguma coisa.",
+            idioma,
+          ),
         ref_kind: "organization",
         ref_id: organizationId,
       })

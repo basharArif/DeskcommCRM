@@ -60,6 +60,8 @@ const PRONTA = {
   contact_id: null,
 };
 
+vi.mock("@/lib/i18n/idiomaDaOrganizacao", () => ({ idiomaDaOrganizacao: vi.fn(async () => "pt-BR") }));
+
 describe("tituloDoAviso", () => {
   it("nomeia a proposta e o cliente", () => {
     expect(tituloDoAviso("Site catálogo", "Maria")).toBe("Proposta «Site catálogo» de Maria está pronta para revisão");

@@ -38,8 +38,11 @@ import { createClient } from "@/lib/supabase/server";
 import { traduzir } from "@/lib/i18n/dicionario";
 
 import { FormularioDaMarcaDaOrganizacao } from "./_form";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Marca" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Marca") }));
+}
 export const dynamic = "force-dynamic";
 
 export default async function MarcaDaOrganizacaoPage() {
@@ -70,7 +73,10 @@ export default async function MarcaDaOrganizacaoPage() {
       <header>
         <h1 className="text-2xl font-semibold tracking-tight">{traduzir("Marca", idioma)}</h1>
         <p className="max-w-2xl text-sm text-muted-foreground">
-          {traduzir("O nome e a cor que a sua empresa mostra para quem trabalha aqui dentro.", idioma)}
+          {traduzir(
+            "O nome e a cor que a sua empresa mostra para quem trabalha aqui dentro.",
+            idioma,
+          )}
         </p>
       </header>
 

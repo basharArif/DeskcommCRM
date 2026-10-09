@@ -4,8 +4,11 @@ import { RecoveryForm } from "@/components/auth/RecoveryForm";
 import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
 import { traduzir } from "@/lib/i18n/dicionario";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Recuperar acesso" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Recuperar acesso") }));
+}
 
 export default async function RecoveryPage({
   searchParams,

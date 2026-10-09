@@ -27,6 +27,8 @@
  * descoberta vem pelo cliente dele. Os custos não são simétricos, e a ordem das
  * recusas abaixo é essa assimetria escrita.
  */
+import { traduzir } from '@/lib/i18n/dicionario';
+import type { Idioma } from '@/lib/i18n/idiomas';
 
 /**
  * Piso do teto: US$ 1,00/mês. Abaixo disto o número não é orçamento de um agente
@@ -87,8 +89,8 @@ export const BLOQUEIO_TITULO = 'O limite de gasto com IA foi atingido';
 export const HANDOFF_REASON_ORCAMENTO = 'orcamento_de_ia';
 
 /** Escreve dólar, porque o número É dólar (`pricing.ts` calcula em USD). */
-function emDolares(cents: number): string {
-  return `US$ ${(cents / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function emDolares(cents: number, idioma: Idioma = 'pt-BR'): string {
+  return `US$ ${(cents / 100).toLocaleString(idioma === 'en' ? 'en-US' : 'pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 /**
@@ -102,16 +104,22 @@ function emDolares(cents: number): string {
  * é `lib/escalacao/retomada.ts`, acionado por um botão POR CONVERSA. Subir o
  * teto evita paradas NOVAS; ele não devolve a IA a nenhuma conversa já parada.
  */
-export function corpoDoBloqueio(gastoCents: number, tetoCents: number): string {
+export function corpoDoBloqueio(gastoCents: number, tetoCents: number, idioma: Idioma = 'pt-BR'): string {
   const pct = tetoCents > 0 ? Math.round((gastoCents / tetoCents) * 100) : 0;
   return (
-    `O gasto de IA deste mês chegou a ${emDolares(gastoCents)} de um limite de ${emDolares(tetoCents)} (${pct}%), ` +
-    'e você escolheu que a IA parasse ao chegar nele. ' +
-    'As conversas que estavam sendo atendidas foram para a FILA DE ATENDIMENTO HUMANO — ' +
-    'ninguém ficou sem próximo passo, mas alguém precisa responder. ' +
-    'Aumentar o limite ou desligar a parada em Uso de IA › Orçamento evita paradas NOVAS; ' +
-    'cada conversa já parada volta ao automático pelo botão "Devolver ao automático" ' +
-    'no cabeçalho dela.'
+    traduzir('O gasto de IA deste mês chegou a {gasto} de um limite de {teto} ({pct}%), ', idioma)
+      .replace('{gasto}', emDolares(gastoCents, idioma))
+      .replace('{teto}', emDolares(tetoCents, idioma))
+      .replace('{pct}', String(pct)) +
+    traduzir(
+      'e você escolheu que a IA parasse ao chegar nele. ' +
+        'As conversas que estavam sendo atendidas foram para a FILA DE ATENDIMENTO HUMANO — ' +
+        'ninguém ficou sem próximo passo, mas alguém precisa responder. ' +
+        'Aumentar o limite ou desligar a parada em Uso de IA › Orçamento evita paradas NOVAS; ' +
+        'cada conversa já parada volta ao automático pelo botão "Devolver ao automático" ' +
+        'no cabeçalho dela.',
+      idioma,
+    )
   );
 }
 

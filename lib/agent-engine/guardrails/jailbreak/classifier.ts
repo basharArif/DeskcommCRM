@@ -16,6 +16,8 @@
  * organization_id/contact_id vêm da ROW do job (closure do run), nunca do payload (regra dura 1).
  */
 import type pg from 'pg';
+import { traduzir } from '@/lib/i18n/dicionario';
+import { idiomaDoTenant } from '../../db/idioma-do-tenant';
 
 import type { Logger } from '../../obs/logger';
 import type { ProviderRegistry } from '../../edge/llm/providers';
@@ -170,6 +172,7 @@ export async function escalateJailbreakPromise(
   db: pg.Pool,
   input: { tenantId: string; leadId: string; level: JailbreakLevel },
 ): Promise<number> {
+  const idioma = await idiomaDoTenant(db, input.tenantId);
   const { rowCount } = await db.query(
     `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind, ref_id)
      select $1, 'other', 'critical', $2, $3, 'jailbreak_escalation', $4
@@ -179,10 +182,16 @@ export async function escalateJailbreakPromise(
      )`,
     [
       input.tenantId,
-      'Possível manipulação do agente — revisar conversa',
-      `A última mensagem deste lead foi sinalizada com risco de jailbreak/injeção (nível: ${input.level}) ` +
-        'e, no MESMO turno, o agente tentou uma promessa fora da tabela do playbook. ' +
-        'Revise a conversa: o padrão sugere tentativa de manipulação para arrancar oferta indevida.',
+      traduzir('Possível manipulação do agente — revisar conversa', idioma),
+      traduzir('A última mensagem deste lead foi sinalizada com risco de jailbreak/injeção (nível: {nivel}) ', idioma).replace(
+        '{nivel}',
+        input.level,
+      ) +
+        traduzir(
+          'e, no MESMO turno, o agente tentou uma promessa fora da tabela do playbook. ' +
+            'Revise a conversa: o padrão sugere tentativa de manipulação para arrancar oferta indevida.',
+          idioma,
+        ),
       input.leadId,
     ],
   );

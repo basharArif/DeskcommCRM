@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
@@ -10,9 +9,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 import { ProdutosClient } from "./_client";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Produtos" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Produtos") }));
+}
 
 /**
  * O CATÁLOGO DA LOJA — onde o preço que a IA responde é cadastrado.
@@ -37,7 +39,8 @@ export default async function ProdutosPage() {
   const activeOrg = await resolveActiveOrg(user);
   if (!activeOrg) redirect("/app");
 
-  const podeEditar = (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.manager;
+  const podeEditar =
+    (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.manager;
 
   const supabase = await createClient();
   const { data } = await supabase

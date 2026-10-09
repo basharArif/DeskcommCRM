@@ -98,6 +98,7 @@ function poolFalso(estado: Estado) {
       // A query LEGADA — só alcançada quando a joinada levantou.
       return { rows: [{ llm: { provider: "anthropic", default_model: "claude-padrao" } }] };
     }
+    if (sql.includes("select locale from organizations")) return { rows: [{ locale: "pt-BR" }] };
     if (sql.includes("ai_purpose_bindings")) return { rows: [] };
     if (sql.includes("ai_provider_credentials")) return { rows: [] };
     if (sql.includes("insert into agent_inbox_items")) {

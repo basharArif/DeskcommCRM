@@ -5,8 +5,11 @@ import { loadAuthUser } from "@/lib/auth/server";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { normalizarIdioma } from "@/lib/i18n/idiomas";
 import { listarModulos } from "@/lib/modulos/service";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Módulos da instalação" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Módulos da instalação") }));
+}
 export const dynamic = "force-dynamic";
 
 /**

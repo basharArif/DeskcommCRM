@@ -13,6 +13,8 @@
  * precisa gravar nada sozinho: só relaya pro frontend tocar o toque (§5.2).
  */
 import type pg from 'pg';
+import { traduzir } from '@/lib/i18n/dicionario';
+import { idiomaDoTenant } from '@/lib/agent-engine/db/idioma-do-tenant';
 
 import { phoneLookupVariants } from '@/lib/channels/phone-variants';
 import { emitAgentActivityForContact } from '@/lib/leads/agent-activity';
@@ -397,13 +399,14 @@ async function handleCallEnded(
   // Chamada de número que não casou com contato nenhum entra sem referência —
   // o telefone está no título, e o aviso continua sendo aviso.
   if (!atendida && recebida) {
+    const idioma = await idiomaDoTenant(pool, sess.organizationId);
     await pool.query(
       `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind, ref_id)
        values ($1, 'voice_call_missed', 'warn', $2, $3, $4, $5)`,
       [
         sess.organizationId,
-        `Chamada perdida de ${row.peer_phone}`,
-        motivoDaChamadaEmPortugues(ev.reason),
+        traduzir('Chamada perdida de {telefone}', idioma).replace('{telefone}', row.peer_phone),
+        motivoDaChamadaEmPortugues(ev.reason, idioma),
         row.contact_id ? 'contact' : null,
         row.contact_id,
       ],

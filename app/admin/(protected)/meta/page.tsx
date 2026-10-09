@@ -7,8 +7,11 @@ import type { Idioma } from "@/lib/i18n/idiomas";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { FormularioDaMeta } from "./_form";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "API Oficial da Meta da instalação" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("API Oficial da Meta da instalação") }));
+}
 export const dynamic = "force-dynamic";
 
 /**
@@ -53,14 +56,12 @@ export default async function Page() {
     .eq("id", 1)
     .maybeSingle();
 
-  const linha = data as
-    | {
-        app_secret_encrypted: string | null;
-        verify_token_encrypted: string | null;
-        verify_token_created_at: string | null;
-        updated_at: string | null;
-      }
-    | null;
+  const linha = data as {
+    app_secret_encrypted: string | null;
+    verify_token_encrypted: string | null;
+    verify_token_created_at: string | null;
+    updated_at: string | null;
+  } | null;
 
   // O `.env` é o piso de rollback (`lib/channels/meta/app.ts`). Dizer que ele
   // existe é o que torna a precedência visível: sem isto, quem tem o par no

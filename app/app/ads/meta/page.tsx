@@ -27,8 +27,11 @@ import { existeConexaoDeLeitura } from "@/lib/plataformas-de-anuncio/credenciais
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { MetaAdsClient } from "./_components/MetaAdsClient";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Meta Ads" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Meta Ads") }));
+}
 export const dynamic = "force-dynamic";
 
 export default async function MetaAdsPage() {
@@ -47,7 +50,8 @@ export default async function MetaAdsPage() {
   // Quem NÃO pode conectar não deve ler "vá em Configurações" — a tela lá é
   // `admin`, e mandar um manager para uma porta que devolve 403 é pior que
   // dizer a verdade: ele precisa pedir para alguém.
-  const podeConectar = (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.admin;
+  const podeConectar =
+    (user.is_platform_admin && !user.support) || ROLE_RANK[activeOrg.role] >= ROLE_RANK.admin;
 
   return (
     /*

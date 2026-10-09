@@ -1,14 +1,16 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { nomeDoOperador, resolverOperador } from "@/lib/legal/operador";
 import { createClient } from "@/lib/supabase/server";
 import { idiomaDoVisitante } from "@/lib/i18n/idiomaAnonimo";
 import { traduzir } from "@/lib/i18n/dicionario";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = { title: "Política de Privacidade" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Política de Privacidade") }));
+}
 
 export default async function PrivacyPage() {
   const op = await resolverOperador();
@@ -140,7 +142,9 @@ export default async function PrivacyPage() {
         <p>
           {op.dpoEmail ? (
             <>
-              {t("Para exercer seus direitos ou tirar dúvidas sobre privacidade, fale com o encarregado de dados:")}{" "}
+              {t(
+                "Para exercer seus direitos ou tirar dúvidas sobre privacidade, fale com o encarregado de dados:",
+              )}{" "}
               <a className="underline underline-offset-2" href={`mailto:${op.dpoEmail}`}>
                 {op.dpoEmail}
               </a>

@@ -19,6 +19,8 @@
  *     F2-13 somará vetos aqui) e saúde de sessão (channel_session_health, F2-14).
  */
 import type pg from 'pg';
+import { traduzir } from '@/lib/i18n/dicionario';
+import { idiomaDoTenant } from '../db/idioma-do-tenant';
 
 import { sessionHealthMetrics, type SessionHealthMetric } from '../edge/crm/session-watchdog';
 import type { JobRow } from '../queue/queue';
@@ -131,10 +133,11 @@ export async function evaluateCacheHitAlert(
   if (runs < knobs.cacheHitAlertMinRuns || avgRatio === null || avgRatio >= knobs.cacheHitAlertThreshold) {
     return { runs, avgRatio, alerted: false };
   }
+  const idioma = await idiomaDoTenant(db, tenantId);
   const res = await db.query(
     `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind)
      select $1, 'other', 'warn',
-            'Cache hit de prompt abaixo do alvo — custo por run acima do esperado',
+            $4,
             $2,
             $3
      where not exists (
@@ -143,11 +146,17 @@ export async function evaluateCacheHitAlert(
      )`,
     [
       tenantId,
-      `média de cache_read/input nos últimos ${runs} runs da janela = ` +
-        `${(avgRatio * 100).toFixed(1)}% (alvo ≥ ${(knobs.cacheHitAlertThreshold * 100).toFixed(0)}%). ` +
-        'Prefixo do prompt possivelmente abaixo do mínimo cacheável do modelo ou com conteúdo ' +
-        'volátil antes do último breakpoint — ver CLAUDE.md regra 15 e o smoke de caching.',
+      traduzir('média de cache_read/input nos últimos {runs} runs da janela = {media}% (alvo ≥ {alvo}%). ', idioma)
+        .replace('{runs}', String(runs))
+        .replace('{media}', (avgRatio * 100).toFixed(1))
+        .replace('{alvo}', (knobs.cacheHitAlertThreshold * 100).toFixed(0)) +
+        traduzir(
+          'Prefixo do prompt possivelmente abaixo do mínimo cacheável do modelo ou com conteúdo ' +
+            'volátil antes do último breakpoint — ver CLAUDE.md regra 15 e o smoke de caching.',
+          idioma,
+        ),
       CACHE_ALERT_REF_KIND,
+      traduzir('Cache hit de prompt abaixo do alvo — custo por run acima do esperado', idioma),
     ],
   );
   return { runs, avgRatio, alerted: (res.rowCount ?? 0) > 0 };

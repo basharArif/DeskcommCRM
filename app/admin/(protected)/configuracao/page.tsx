@@ -11,8 +11,11 @@ import { normalizarIdioma } from "@/lib/i18n/idiomas";
 import { traduzir } from "@/lib/i18n/dicionario";
 
 import { PainelDeConfiguracao } from "./_form";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
-export const metadata = { title: "Configuração da instalação" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Configuração da instalação") }));
+}
 export const dynamic = "force-dynamic";
 
 /**
@@ -50,7 +53,11 @@ const ORDEM: readonly {
   },
   { grupo: "banco", titulo: "Banco de dados", resumo: "Onde ficam todos os seus dados." },
   { grupo: "fila", titulo: "Fila de tarefas", resumo: "Controla o ritmo dos envios." },
-  { grupo: "ia", titulo: "Inteligência artificial", resumo: "Como o atendimento automático opera." },
+  {
+    grupo: "ia",
+    titulo: "Inteligência artificial",
+    resumo: "Como o atendimento automático opera.",
+  },
 ];
 
 export interface LinhaDaTela {
@@ -75,7 +82,9 @@ export default async function Page() {
   // servidor manda e-mail" é um assunto só, e estava dividido em duas telas.
   // O filtro é o catálogo, não uma lista escrita aqui — assim não há como as
   // duas telas mostrarem a mesma chave.
-  const daTela = CATALOGO_DA_INSTALACAO.filter((d) => (d.telaDona ?? "credenciais") === "credenciais");
+  const daTela = CATALOGO_DA_INSTALACAO.filter(
+    (d) => (d.telaDona ?? "credenciais") === "credenciais",
+  );
 
   const linhas: LinhaDaTela[] = await Promise.all(
     daTela.map(async (definicao) => ({

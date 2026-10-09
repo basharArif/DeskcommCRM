@@ -1,12 +1,14 @@
-import type { Metadata } from "next";
 import { NavHub } from "@/components/shell/NavHub";
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { modulosLigados } from "@/lib/instalacao/modulos";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Análise" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Análise") }));
+}
 
 /**
  * Hub da Análise.

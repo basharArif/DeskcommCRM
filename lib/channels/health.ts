@@ -29,6 +29,9 @@
  * função, então a regra de quando avisar existe uma vez só.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
+import type { Idioma } from "@/lib/i18n/idiomas";
 
 import { PROVIDERS_DE_MENSAGEM } from "./capabilities";
 import { ehNomeDeSessaoE2E } from "./sessoes-e2e";
@@ -96,7 +99,11 @@ export interface SaudeObservada {
  * com dois números ligados "WhatsApp desconectado" não diz QUAL — e a primeira
  * pergunta de quem lê o aviso é exatamente essa.
  */
-export function avisoDaConexao(saude: SaudeObservada, apelido: string): AvisoDeConexao | null {
+export function avisoDaConexao(
+  saude: SaudeObservada,
+  apelido: string,
+  idioma: Idioma = "pt-BR",
+): AvisoDeConexao | null {
   if (!saude.reachable) {
     // "Não deu para perguntar" tem DOIS motivos que pedem ações opostas, e
     // tratá-los igual foi o defeito medido: numa VPS real a chave do WAHA foi
@@ -112,9 +119,11 @@ export function avisoDaConexao(saude: SaudeObservada, apelido: string): AvisoDeC
       return {
         kind: "channel_number_alert",
         severity: "critical",
-        title: `Conexão "${apelido}": o servidor de WhatsApp recusou a chave de acesso`,
-        body:
+        title: traduzir('Conexão "{apelido}": o servidor de WhatsApp recusou a chave de acesso', idioma).replace("{apelido}", () => apelido),
+        body: traduzir(
           "Escanear o QR não resolve: a chave que o CRM usa para falar com o servidor de WhatsApp não confere com a que o servidor espera. Enquanto isso durar, nenhuma mensagem entra nem sai por NENHUMA conexão. Quem cuida do servidor precisa conferir a WAHA_API_KEY do .env e recriar o contêiner do WhatsApp.",
+          idioma,
+        ),
         episodio: "CREDENCIAL_RECUSADA",
       };
     }
@@ -126,7 +135,7 @@ export function avisoDaConexao(saude: SaudeObservada, apelido: string): AvisoDeC
     return {
       kind: "channel_number_alert",
       severity: "warn",
-      title: `Não foi possível verificar a conexão "${apelido}"`,
+      title: traduzir('Não foi possível verificar a conexão "{apelido}"', idioma).replace("{apelido}", () => apelido),
       body: saude.detail,
       episodio: "UNREACHABLE",
     };
@@ -140,8 +149,8 @@ export function avisoDaConexao(saude: SaudeObservada, apelido: string): AvisoDeC
     return {
       kind: "qr_rescan",
       severity: "critical",
-      title: `WhatsApp "${apelido}" desconectado — precisa escanear o QR de novo`,
-      body: "Enquanto isso não acontecer, nenhuma mensagem entra nem sai por esta conexão.",
+      title: traduzir('WhatsApp "{apelido}" desconectado — precisa escanear o QR de novo', idioma).replace("{apelido}", () => apelido),
+      body: traduzir("Enquanto isso não acontecer, nenhuma mensagem entra nem sai por esta conexão.", idioma),
       episodio: status,
     };
   }
@@ -149,8 +158,10 @@ export function avisoDaConexao(saude: SaudeObservada, apelido: string): AvisoDeC
   return {
     kind: "channel_number_alert",
     severity: "critical",
-    title: `WhatsApp "${apelido}" fora do ar (${status})`,
-    body: "Nenhuma mensagem entra nem sai por esta conexão até ela voltar.",
+    title: traduzir('WhatsApp "{apelido}" fora do ar ({status})', idioma)
+      .replace("{apelido}", () => apelido)
+      .replace("{status}", status),
+    body: traduzir("Nenhuma mensagem entra nem sai por esta conexão até ela voltar.", idioma),
     episodio: status,
   };
 }
@@ -291,12 +302,14 @@ export async function sincronizarSaudeDaConexao(
   // (caiu por QR, agora está FAILED) avisa de novo — mudou o que fazer.
   if (jaEscalado === episodio) return "ja_avisado";
 
+  const localizado =
+    avisoDaConexao(saude, apelido, await idiomaDaOrganizacao(sessao.organization_id)) ?? aviso;
   await admin.from("agent_inbox_items").insert({
     organization_id: sessao.organization_id,
     kind: aviso.kind,
     severity: aviso.severity,
-    title: aviso.title,
-    body: aviso.body,
+    title: localizado.title,
+    body: localizado.body,
     ref_kind: REF_KIND_SESSAO,
     ref_id: sessao.id,
   });

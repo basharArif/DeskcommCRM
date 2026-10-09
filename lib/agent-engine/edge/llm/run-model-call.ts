@@ -20,6 +20,8 @@ import { generateText, stepCountIs, type ModelMessage, type ToolSet } from 'ai';
 import type pg from 'pg';
 import { z } from 'zod';
 
+import { traduzir } from '@/lib/i18n/dicionario';
+import { idiomaDoTenant } from '../../db/idioma-do-tenant';
 import { PONTO_POR_ID } from '@/lib/ai/pontos/registro';
 import { scrubMessage } from '@/lib/sentry/scrub';
 
@@ -375,6 +377,7 @@ async function aplicarOrcamento(d: {
   // insert anterior não gravava ref nenhum, e por isso nenhum auto-resolvedor
   // o alcançava — virava o mês, a IA voltava, e o alerta crítico continuava
   // aceso. Estado falso é pior que ausente, porque quem lê age sobre ele.
+  const idioma = await idiomaDoTenant(d.db, d.organizationId);
   await d.db.query(
     `insert into agent_inbox_items (organization_id, kind, severity, title, body, ref_kind, ref_id)
      select $1, 'budget_exceeded', 'critical', $2, $3, 'ai_budget', $1
@@ -382,7 +385,7 @@ async function aplicarOrcamento(d: {
        select 1 from agent_inbox_items
        where organization_id = $1 and kind = 'budget_exceeded' and status = 'open'
      )`,
-    [d.organizationId, BLOQUEIO_TITULO, corpoDoBloqueio(gastoCents, tetoCents)],
+    [d.organizationId, traduzir(BLOQUEIO_TITULO, idioma), corpoDoBloqueio(gastoCents, tetoCents, idioma)],
   );
   // A recusa vira LINHA em llm_calls. A tela /app/ai/runs nasceu porque
   // "llm_calls só registrava sucesso — a tabela ficava vazia exatamente no caso

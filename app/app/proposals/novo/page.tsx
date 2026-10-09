@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
@@ -6,9 +5,12 @@ import { roleAtLeast } from "@/lib/auth/types";
 import { createClient } from "@/lib/supabase/server";
 
 import { NewProposalClient, type LeadOption } from "./_client";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Nova Proposta" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("Nova Proposta") }));
+}
 
 export default async function NewProposalPage({
   searchParams,
@@ -21,8 +23,7 @@ export default async function NewProposalPage({
 
   const podeCriar =
     roleAtLeast(activeOrg.role, "agent") &&
-    (!user.support ||
-      (user.support.status === "active" && user.support.access_mode === "full"));
+    (!user.support || (user.support.status === "active" && user.support.access_mode === "full"));
 
   if (!podeCriar) {
     redirect("/app/proposals");
@@ -37,7 +38,8 @@ export default async function NewProposalPage({
   // (crm_proposals.contact_id é NOT NULL na criação da proposta).
   const { data: leadsData } = await supabase
     .from("crm_leads")
-    .select(`
+    .select(
+      `
       id,
       title,
       contact_id,
@@ -47,32 +49,35 @@ export default async function NewProposalPage({
         display_name,
         phone_number
       )
-    `)
+    `,
+    )
     .eq("organization_id", activeOrg.orgId)
     .not("contact_id", "is", null)
     .order("created_at", { ascending: false })
     .limit(300);
 
-  const leads: LeadOption[] = ((leadsData ?? []) as unknown as Array<{
-    id: string;
-    title: string | null;
-    contact_id: string;
-    contacts:
-      | {
-          id: string;
-          name: string | null;
-          display_name: string | null;
-          phone_number: string | null;
-        }
-      | Array<{
-          id: string;
-          name: string | null;
-          display_name: string | null;
-          phone_number: string | null;
-        }>
-      | null;
-  }>).map((item) => {
-    const contact = Array.isArray(item.contacts) ? item.contacts[0] ?? null : item.contacts;
+  const leads: LeadOption[] = (
+    (leadsData ?? []) as unknown as Array<{
+      id: string;
+      title: string | null;
+      contact_id: string;
+      contacts:
+        | {
+            id: string;
+            name: string | null;
+            display_name: string | null;
+            phone_number: string | null;
+          }
+        | Array<{
+            id: string;
+            name: string | null;
+            display_name: string | null;
+            phone_number: string | null;
+          }>
+        | null;
+    }>
+  ).map((item) => {
+    const contact = Array.isArray(item.contacts) ? (item.contacts[0] ?? null) : item.contacts;
     return {
       id: item.id,
       title: item.title,
@@ -88,10 +93,5 @@ export default async function NewProposalPage({
     };
   });
 
-  return (
-    <NewProposalClient
-      initialLeads={leads}
-      preselectedLeadId={preselectedLeadId}
-    />
-  );
+  return <NewProposalClient initialLeads={leads} preselectedLeadId={preselectedLeadId} />;
 }

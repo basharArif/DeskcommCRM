@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { NavHub } from "@/components/shell/NavHub";
 import { requireAuth, resolveActiveOrg } from "@/lib/auth/server";
 import { loadCrmExtensions } from "@/lib/extensions/service";
@@ -8,9 +7,12 @@ import { traduzir } from "@/lib/i18n/dicionario";
 import { modulosLigados } from "@/lib/instalacao/modulos";
 import { capacidadesDaOrganizacao } from "@/lib/organizacao/capacidades";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "CRM" };
+export async function generateMetadata() {
+  return metadadosLocalizados((t) => ({ title: t("CRM") }));
+}
 
 /**
  * Hub do CRM.

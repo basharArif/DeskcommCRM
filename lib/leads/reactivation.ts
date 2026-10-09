@@ -1,4 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { traduzir } from "@/lib/i18n/dicionario";
+import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 
 import { emitLeadActivity } from "@/lib/leads/activity-emitter";
 import { registraFalhaDeAtividade } from "@/lib/leads/activity-write-failure";
@@ -190,18 +192,31 @@ export async function venceReativacoes(
       .eq("status", "open")
       .maybeSingle();
     if (!jaAberto) {
+      const idioma = await idiomaDaOrganizacao(organizationId);
+      const um = r.vencidas === 1;
       const { data: item } = await admin
         .from("agent_inbox_items")
         .insert({
           organization_id: organizationId,
           kind: "reactivation_expired",
           severity: "warn",
-          title: `Decida sobre ${r.vencidas} ${r.vencidas === 1 ? "negócio parado" : "negócios parados"} — a sugestão de retomar venceu`,
+          title: traduzir(
+            um
+              ? "Decida sobre {n} negócio parado — a sugestão de retomar venceu"
+              : "Decida sobre {n} negócios parados — a sugestão de retomar venceu",
+            idioma,
+          ).replace("{n}", String(r.vencidas)),
           body:
-            `${r.vencidas === 1 ? "Um negócio esfriou" : `${r.vencidas} negócios esfriaram`} e a sugestão de ` +
-            `retomar contato ficou sem resposta até o prazo. Eles saíram do quadro para não ` +
-            `parecerem em andamento. Retomar ou encerrar — as duas são decisões; deixar como ` +
-            `está é a única que não é.`,
+            (um
+              ? traduzir("Um negócio esfriou e a sugestão de retomar contato ficou sem resposta até o prazo. ", idioma)
+              : traduzir("{n} negócios esfriaram e a sugestão de retomar contato ficou sem resposta até o prazo. ", idioma).replace(
+                  "{n}",
+                  String(r.vencidas),
+                )) +
+            traduzir(
+              "Eles saíram do quadro para não parecerem em andamento. Retomar ou encerrar — as duas são decisões; deixar como está é a única que não é.",
+              idioma,
+            ),
           ref_kind: "organization",
           ref_id: organizationId,
         })

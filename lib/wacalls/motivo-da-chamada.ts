@@ -16,6 +16,9 @@
  * única pista que existe, e uma frase tranquilizadora onde não há informação é
  * pior que a informação estranha.
  */
+import { traduzir } from '@/lib/i18n/dicionario';
+import type { Idioma } from '@/lib/i18n/idiomas';
+
 const MOTIVOS: Record<string, string> = {
   user_ended: 'Quem ligou desligou antes de alguém atender.',
   declined: 'A chamada foi recusada.',
@@ -29,11 +32,17 @@ const MOTIVOS: Record<string, string> = {
   unknown: 'A chamada terminou sem que o WhatsApp informasse o motivo.',
 };
 
-/** Frase em português para o `end_reason` cru do upstream. */
-export function motivoDaChamadaEmPortugues(motivo: string | null | undefined): string {
+/** Frase para o `end_reason` cru do upstream; português por padrão, idioma da org quando quem grava o conhece. */
+export function motivoDaChamadaEmPortugues(
+  motivo: string | null | undefined,
+  idioma: Idioma = 'pt-BR',
+): string {
   const cru = (motivo ?? '').trim();
-  if (!cru) return MOTIVOS['unknown']!;
+  if (!cru) return traduzir(MOTIVOS['unknown']!, idioma);
   const conhecido = MOTIVOS[cru.toLowerCase()];
-  if (conhecido) return conhecido;
-  return `A chamada terminou por um motivo que ainda não sabemos traduzir (${cru}).`;
+  if (conhecido) return traduzir(conhecido, idioma);
+  return traduzir('A chamada terminou por um motivo que ainda não sabemos traduzir ({motivo}).', idioma).replace(
+    '{motivo}',
+    cru,
+  );
 }
