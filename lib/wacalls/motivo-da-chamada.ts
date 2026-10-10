@@ -19,17 +19,17 @@
 import { traduzir } from '@/lib/i18n/dicionario';
 import type { Idioma } from '@/lib/i18n/idiomas';
 
-const MOTIVOS: Record<string, string> = {
-  user_ended: 'Quem ligou desligou antes de alguém atender.',
-  declined: 'A chamada foi recusada.',
-  rejected: 'A chamada foi recusada.',
-  timeout: 'O telefone tocou e ninguém atendeu.',
-  busy: 'A linha estava ocupada.',
-  cancelled: 'A chamada foi cancelada.',
-  canceled: 'A chamada foi cancelada.',
-  failed: 'A chamada falhou antes de completar.',
-  do_not_disturb: 'O aparelho estava no modo "não perturbe".',
-  unknown: 'A chamada terminou sem que o WhatsApp informasse o motivo.',
+const MOTIVOS: Record<string, (idioma: Idioma) => string> = {
+  user_ended: (i) => traduzir('Quem ligou desligou antes de alguém atender.', i),
+  declined: (i) => traduzir('A chamada foi recusada.', i),
+  rejected: (i) => traduzir('A chamada foi recusada.', i),
+  timeout: (i) => traduzir('O telefone tocou e ninguém atendeu.', i),
+  busy: (i) => traduzir('A linha estava ocupada.', i),
+  cancelled: (i) => traduzir('A chamada foi cancelada.', i),
+  canceled: (i) => traduzir('A chamada foi cancelada.', i),
+  failed: (i) => traduzir('A chamada falhou antes de completar.', i),
+  do_not_disturb: (i) => traduzir('O aparelho estava no modo "não perturbe".', i),
+  unknown: (i) => traduzir('A chamada terminou sem que o WhatsApp informasse o motivo.', i),
 };
 
 /** Frase para o `end_reason` cru do upstream; português por padrão, idioma da org quando quem grava o conhece. */
@@ -38,9 +38,9 @@ export function motivoDaChamadaEmPortugues(
   idioma: Idioma = 'pt-BR',
 ): string {
   const cru = (motivo ?? '').trim();
-  if (!cru) return traduzir(MOTIVOS['unknown']!, idioma);
+  if (!cru) return MOTIVOS['unknown']!(idioma);
   const conhecido = MOTIVOS[cru.toLowerCase()];
-  if (conhecido) return traduzir(conhecido, idioma);
+  if (conhecido) return conhecido(idioma);
   return traduzir('A chamada terminou por um motivo que ainda não sabemos traduzir ({motivo}).', idioma).replace(
     '{motivo}',
     cru,

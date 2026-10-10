@@ -40,6 +40,7 @@ import {
 } from "@/lib/channels/canal-mudo";
 import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { Idioma } from "@/lib/i18n/idiomas";
 import { traduzir } from "@/lib/i18n/dicionario";
 import { idiomaDaOrganizacao } from "@/lib/i18n/idiomaDaOrganizacao";
 import { autorizaCron } from "@/lib/auth/cron-auth";
@@ -50,11 +51,8 @@ export const dynamic = "force-dynamic";
 const LIMITE = 500;
 
 /** O que o corpo do aviso diz a quem abre a Central. Sem jargão e com a saída. */
-const CORPO_DO_AVISO =
-  "Este canal está em modo de teste e não tem nenhum número autorizado, " +
-  "então a IA não responde a ninguém nele — as mensagens chegam no Inbox e " +
-  "ficam sem resposta automática. Em Conexões, autorize os números de teste " +
-  "ou abra o canal ao público.";
+const corpoDoAviso = (idioma: Idioma = "pt-BR"): string =>
+  traduzir("Este canal está em modo de teste e não tem nenhum número autorizado, então a IA não responde a ninguém nele — as mensagens chegam no Inbox e ficam sem resposta automática. Em Conexões, autorize os números de teste ou abra o canal ao público.", idioma);
 
 const MOTIVO_LEGIVEL: Record<MotivoDaResolucao, string> = {
   ganhou_numero: "o canal ganhou número autorizado",
@@ -122,7 +120,7 @@ async function handle(req: NextRequest): Promise<Response> {
       .from("agent_inbox_items")
       .update({
         status: "resolved",
-        body: `${CORPO_DO_AVISO}\n\nResolvido pelo sistema: ${MOTIVO_LEGIVEL[motivo]}.`,
+        body: `${corpoDoAviso()}\n\nResolvido pelo sistema: ${MOTIVO_LEGIVEL[motivo]}.`,
       })
       .eq("id", aviso.id)
       // O `status` no filtro é a trava: duas rodadas simultâneas (cron + curl à
@@ -155,7 +153,7 @@ async function handle(req: NextRequest): Promise<Response> {
         // reserva para o que já custou dinheiro ou cliente.
         severity: "warn",
         title: traduzir("Este canal está em modo de teste — a IA não responde ninguém", idioma),
-        body: `${traduzir(CORPO_DO_AVISO, idioma)}\n\n${traduzir("Assim há {n} dia(s).", idioma).replace("{n}", String(desfecho.diasMudo))}`,
+        body: `${corpoDoAviso(idioma)}\n\n${traduzir("Assim há {n} dia(s).", idioma).replace("{n}", String(desfecho.diasMudo))}`,
         ref_kind: "channel_session",
         ref_id: canal.id,
       })

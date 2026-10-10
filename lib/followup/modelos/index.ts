@@ -45,6 +45,13 @@ function localizarNo(no: FlowNode, idioma: string): FlowNode {
   return { ...no, label };
 }
 
+const JORNADA_EN: Record<string, string> = {
+  Consulta: "Appointment",
+  Exame: "Test",
+  Cirurgia: "Surgery",
+  Falta: "No-show",
+};
+
 /** O catálogo é escrito em pt-BR; o texto só muda na instalação, nunca num fluxo já gravado. */
 export function localizarModelo(modelo: ModeloDeFollowup, idioma: string): ModeloDeFollowup {
   if (idioma !== "en") return modelo;
@@ -52,7 +59,7 @@ export function localizarModelo(modelo: ModeloDeFollowup, idioma: string): Model
   return {
     ...modelo,
     nome: t(modelo.nome),
-    jornada: t(`${modelo.jornada}@@jornada`),
+    jornada: JORNADA_EN[modelo.jornada] ?? modelo.jornada,
     resumo: t(modelo.resumo),
     oQueDispara: t(modelo.oQueDispara),
     grafo: { ...modelo.grafo, nodes: modelo.grafo.nodes.map((n) => localizarNo(n, idioma)) },

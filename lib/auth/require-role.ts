@@ -295,7 +295,13 @@ export async function requireRole(min: Role, opts: RequireRoleOpts = {}): Promis
     });
     return {
       ok: false,
-      response: fail("forbidden_role", t(`Permissão insuficiente. Requer role >= ${min}.`), 403, {
+      response: fail("forbidden_role", (min === "viewer"
+          ? t("Permissão insuficiente. Requer role >= viewer.")
+          : min === "agent"
+            ? t("Permissão insuficiente. Requer role >= agent.")
+            : min === "manager"
+              ? t("Permissão insuficiente. Requer role >= manager.")
+              : t("Permissão insuficiente. Requer role >= admin.")), 403, {
         requestId,
       }),
     };

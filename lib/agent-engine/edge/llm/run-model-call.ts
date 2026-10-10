@@ -47,7 +47,7 @@ import {
   AVISO_CORPO,
   AVISO_TITULO,
   BLOQUEIO_TITULO,
-  CORPO_TETO_DO_PLANO,
+  corpoDoTetoDoPlano,
   corpoDoBloqueio,
   decidirOrcamento,
   decidirTetoDoPlano,
@@ -416,7 +416,7 @@ export async function aplicarOrcamento(d: EntradaDoGate): Promise<void> {
       await recusarPorTeto(d, {
         refKind: 'plano',
         titulo: TITULO_TETO_DO_PLANO,
-        corpo: (idioma) => traduzir(CORPO_TETO_DO_PLANO, idioma),
+        corpo: corpoDoTetoDoPlano,
         erro: new LlmBudgetExceededError(MOTIVO_TETO_DO_PLANO),
         gastoCents: plano.gastoUsdCents,
         tetoCents: plano.tetoUsdCents ?? 0,

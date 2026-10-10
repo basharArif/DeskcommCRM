@@ -28,7 +28,7 @@ import {
   AVISO_CORPO,
   AVISO_TITULO,
   BLOQUEIO_TITULO,
-  CORPO_TETO_DO_PLANO,
+  corpoDoTetoDoPlano,
   corpoDoBloqueio,
   decidirOrcamento,
   decidirTetoDoPlano,
@@ -586,7 +586,7 @@ async function vetoPorTetoDoPlano(
     kind: "budget_exceeded",
     severity: "critical",
     title: TITULO_TETO_DO_PLANO,
-    body: CORPO_TETO_DO_PLANO,
+    body: corpoDoTetoDoPlano(),
     refKind: "plano",
   });
   return devolverAoHumanoPorTeto(alvo, {
