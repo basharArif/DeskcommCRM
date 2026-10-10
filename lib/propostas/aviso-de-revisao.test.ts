@@ -1,5 +1,5 @@
 // lib/propostas/aviso-de-revisao.test.ts
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   EVENTO_PROPOSTA_PRONTA_PARA_REVISAO,

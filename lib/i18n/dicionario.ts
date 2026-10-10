@@ -15624,7 +15624,6 @@ export const DICIONARIO: Traducoes = {
   "Novo plano": { es: "Nuevo plan" },
   "Nenhum plano cadastrado ainda.": { es: "Aún no hay planes registrados." },
   "Nome do plano": { es: "Nombre del plan" },
-  "Proposta enviada": { es: "Propuesta enviada" },
   "Descrição (opcional)": { es: "Descripción (opcional)" },
   "Passos do plano": { es: "Pasos del plan" },
   "Adicionar passo": { es: "Agregar paso" },

@@ -73,7 +73,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     });
   }
 
-  const modelo = modeloPorId(parsed.data.model_id, await idiomaDaOrganizacao(activeOrg.orgId));
+  const modelo = modeloPorId(parsed.data.model_id, await idiomaDaOrganizacao(organizationId));
   if (!modelo) {
     return fail("not_found", t("Este modelo não existe mais."), 404, { requestId });
   }
