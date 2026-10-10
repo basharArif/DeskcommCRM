@@ -1,7 +1,7 @@
 import { requireAuth } from "@/lib/auth/server";
 import { traduzir } from "@/lib/i18n/dicionario";
 
-import { ActivityReportClient } from "./_components/ActivityReportClient";
+import { Relatorios } from "./_components/Relatorios";
 import { metadadosLocalizados } from "@/lib/i18n/metadados";
 
 export const dynamic = "force-dynamic";
@@ -9,11 +9,27 @@ export async function generateMetadata() {
   return metadadosLocalizados((t) => ({ title: t("Atividades") }));
 }
 
-export default async function ActivitiesReportPage() {
+/**
+ * As duas abas são endereçáveis, como em `/app/team`: quem mandar o link da
+ * aba Por etiqueta (`?aba=etiquetas`) abre nela. Valor desconhecido cai na aba
+ * de sempre em vez de deixar as duas fechadas.
+ *
+ * `aba` em português porque é o que aparece na barra de endereço de quem usa
+ * o produto — a mesma convenção do time e das telas de settings.
+ */
+const ABAS: Record<string, string> = { atividades: "atividades", etiquetas: "etiquetas" };
+
+export default async function ActivitiesReportPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ aba?: string }>;
+}) {
   const user = await requireAuth();
   // `t` local e não o hook: componente de SERVIDOR — o idioma já vem resolvido
   // pela cadeia pessoa → organização → padrão em `lib/auth/server.ts`.
   const t = (texto: string) => traduzir(texto, user.idioma);
+  const { aba } = await searchParams;
+  const abaInicial = ABAS[aba ?? ""] ?? "atividades";
 
   return (
     <div className="flex h-full flex-col gap-6 p-6">
@@ -24,7 +40,7 @@ export default async function ActivitiesReportPage() {
         </p>
       </header>
 
-      <ActivityReportClient />
+      <Relatorios abaInicial={abaInicial} />
     </div>
   );
 }

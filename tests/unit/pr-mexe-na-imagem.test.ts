@@ -110,6 +110,10 @@ describe("pr-mexe-na-imagem", () => {
     "scripts/i18n-faltando.ts",
     "scripts/i18n-aplicar.ts",
     "scripts/i18n-cobertura.ts",
+    // smoke do Asaas contra o sandbox (fora do CI, com a chave do dono): importa o
+    // dublê de tests/ DE PROPÓSITO — o trabalho dele é medir se as suposições do
+    // dublê (somarCiclo, cobranças geradas de saída) batem com o Asaas de verdade.
+    "scripts/smoke-asaas.ts",
   ]);
 
   it("nenhum arquivo que entra na imagem importa de pasta que o .dockerignore exclui", () => {
