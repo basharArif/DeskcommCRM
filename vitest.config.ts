@@ -24,6 +24,10 @@ export default defineConfig({
     // depois); só para de cronometrar a lentidão da máquina como se fosse
     // asserção. Caso que precisa de mais (abrir processo filho) declara o seu.
     testTimeout: 15_000,
+    pool: "forks",
+    // Teto de workers: sem ele o vitest usa todos os núcleos e deixa filhos tsx órfãos.
+    maxWorkers: "50%",
+    teardownTimeout: 10_000,
     setupFiles: ["./tests/setup/vitest.setup.ts"],
     globals: true,
     coverage: { provider: "v8", reporter: ["text", "html"] },
