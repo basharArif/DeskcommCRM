@@ -37,6 +37,7 @@ Re-check each one after every sync.
 | Fast-check selector | `vitest.cercas.ts` | Follows relative `.json` imports as pure data so the i18n guard stays in `pnpm cercas`. |
 | Org-language seeds | migration 0433, `baseline.sql` appendix | Sits before the anon sweep block. |
 | Default brand name | `.env.local` (`APP_NAME=NestComCRM`), `hostgator-setup-kit/install.sh` defaults | Product graphic logo is gated to `DEFAULT_APP_NAME` ("DeskcommCRM") in `lib/branding.ts`; setting `APP_NAME` elsewhere hides the graphic mark and renders plain "NestComCRM" text everywhere via each consumer's existing fallback. Core files untouched. |
+| `CLAUDE.md` is a pointer file | `CLAUDE.md`, `docs/doctrine/*.md`, `AGENTS.md`, `tests/unit/prova-em-par-esta-escrita.test.ts` | The doctrine text moved verbatim to `docs/doctrine/` (HQ-213). Upstream edits to `CLAUDE.md` will conflict on every sync: keep ours, then re-apply the upstream addition in the matching `docs/doctrine/` file (the table in `CLAUDE.md` maps topic to file; the Definition of Done is `definition-of-done.md`). |
 
 ## Rules to keep conflicts small
 

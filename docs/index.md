@@ -10,8 +10,8 @@ audited_against: origin/main @ 789dfa6 (v1.0.0, 2026-07-27)
 
 # Índice da documentação — DeskcommCRM
 
-Mapa dos **154** arquivos `.md` de `docs/`, espalhados por **20** subpastas — medido em
-2026-08-14, com as réguas ao lado: `git ls-files 'docs/**/*.md' | wc -l` e
+Mapa dos **272** arquivos `.md` de `docs/`, espalhados por **30** subpastas — medido em
+2026-11-07, com as réguas ao lado: `git ls-files 'docs/**/*.md' | wc -l` e
 `git ls-files 'docs/**/*.md' | sed 's|^docs/||;s|/.*||' | sort -u | wc -l`. Os dois números
 estavam errados (149 e 24) e a segunda régua nem existia — é a mesma classe que
 [`audits/2026-08-14-afirmacoes-de-estado.md`](audits/2026-08-14-afirmacoes-de-estado.md)
@@ -20,7 +20,7 @@ de entrada: sem este índice, humano e agente não acham o que já foi decidido 
 reescrevem por cima.
 
 **Regra de precedência quando dois docs discordam:**
-`CLAUDE.md` (doutrina) > `docs/specs/` (contrato técnico) > `docs/prd/` (intenção) >
+`CLAUDE.md` + `docs/doctrine/` (doutrina) > `docs/specs/` (contrato técnico) > `docs/prd/` (intenção) >
 `HANDOFF-*.md` (estado de sessão) > README. Se achou divergência, corrija a fonte
 de menor precedência e registre.
 
@@ -34,7 +34,7 @@ de menor precedência e registre.
 | [`VISION.md`](../VISION.md) | Posicionamento, por que self-host, para quem |
 | [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Arquitetura em 1 página |
 | [`AGENTS.md`](../AGENTS.md) | Contrato para agentes de código (qualquer ferramenta) |
-| [`CLAUDE.md`](../CLAUDE.md) | **Doutrina não-negociável.** Convenções, anti-patterns, Definition of Done |
+| [`CLAUDE.md`](../CLAUDE.md) | **Porta da doutrina não-negociável:** regras duras e tabela de ponteiros para [`doctrine/`](doctrine/) (convenções, anti-patterns, Definition of Done) |
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Como contribuir |
 | [`CHANGELOG.md`](../CHANGELOG.md) | Mudanças por versão (SemVer). **Quem roda VPS lê antes de `update.sh`** — mudança que exige ação manual aparece sob "⚠️ Requer atenção" |
 | [`docs/current-state.md`](current-state.md) | **O que está pronto, incompleto e quebrado hoje** |
@@ -95,6 +95,20 @@ Detalham schema SQL e payloads exatos. **Consulte antes de modelar qualquer cois
 | [`doctrine/prova-em-par.md`](doctrine/prova-em-par.md) | **Prova em Par — emenda ao item 12 do DoD.** Caso de aceite que atravessa agente de IA mede tela + ferramenta com o mesmo texto cru, e só conta quando os dois concordam |
 | [`doctrine/destrutivo-pede-confirmacao.md`](doctrine/destrutivo-pede-confirmacao.md) | Ação destrutiva pede confirmação que **nomeia o alvo** — dois botões gêmeos, o mesmo contrato |
 | [`doctrine/extensoes.md`](doctrine/extensoes.md) | **Doutrina de Extensões — a LEI.** Núcleo × extensão pela pergunta "com zero ativações a operação comum continua inteira?" + 13 não-negociáveis, com as políticas do DEC-004 (item 18 do DoD) |
+| [`doctrine/visao-e-stack.md`](doctrine/visao-e-stack.md) | Visão do produto e stack canônica (movido do `CLAUDE.md`) |
+| [`doctrine/convencoes-criticas.md`](doctrine/convencoes-criticas.md) | Multi-tenancy, idempotência, API `/api/v1`, Auth/RBAC, audit log, LGPD (movido do `CLAUDE.md`) |
+| [`doctrine/waha-e-marca-propria.md`](doctrine/waha-e-marca-propria.md) | Convenções do WAHA (anti-banimento, STOP, grupos, cron de mensagens presas) e da marca própria (movido do `CLAUDE.md`) |
+| [`doctrine/modelagem.md`](doctrine/modelagem.md) | Doutrina DIRC e modelagem de dados (movido do `CLAUDE.md`) |
+| [`doctrine/anti-patterns.md`](doctrine/anti-patterns.md) | Anti-patterns proibidos, numerados (movido do `CLAUDE.md`) |
+| [`doctrine/caminhos-e-rodar-local.md`](doctrine/caminhos-e-rodar-local.md) | Paths importantes do repo e como rodar local (movido do `CLAUDE.md`) |
+| [`doctrine/deploy-producao.md`](doctrine/deploy-producao.md) | Deploy em produção: os dois compose, `/` 200 e `/app` 307, nada construído na VPS (movido do `CLAUDE.md`) |
+| [`doctrine/packaging-e-extensoes.md`](doctrine/packaging-e-extensoes.md) | O não-negociável de Packaging e de Extensões, em resumo (movido do `CLAUDE.md`) |
+| [`doctrine/testes.md`](doctrine/testes.md) | Comandos de teste, armadilhas do `test:unit` e os cinco checks obrigatórios do CI (movido do `CLAUDE.md`) |
+| [`doctrine/qa-visual.md`](doctrine/qa-visual.md) | QA Visual com Recursos Reais: prova pela tela, banco fresco estilo VPS (movido do `CLAUDE.md`) |
+| [`doctrine/higiene-de-branches.md`](doctrine/higiene-de-branches.md) | Higiene de branches; neste fork vale o aviso FORK do `CLAUDE.md` e o `FORK.md` (movido do `CLAUDE.md`) |
+| [`doctrine/migrations-e-banco.md`](doctrine/migrations-e-banco.md) | Doutrina de Migrations e Banco: arquivo versionado + apêndice no baseline + manifest (movido do `CLAUDE.md`) |
+| [`doctrine/skills-e-guias.md`](doctrine/skills-e-guias.md) | Guias embutidos e skills relevantes (movido do `CLAUDE.md`) |
+| [`doctrine/definition-of-done.md`](doctrine/definition-of-done.md) | **Definition of Done** (movido do `CLAUDE.md`) |
 | [`specs/19`](specs/19-spec-console-de-agencia.md) | **Console de Agência** — operar N organizações clientes; unidade de cobrança decidida (retainer por cliente operado). Lei em [`doctrine/operacao-de-agentes.md`](doctrine/operacao-de-agentes.md) |
 | [`adr/0001-packaging-e-distribuicao.md`](adr/0001-packaging-e-distribuicao.md) | ADR do packaging: namespace, os 3 packages, e o que foi recusado |
 | [`adr/0002-tabelas-de-modulo-num-banco-so.md`](adr/0002-tabelas-de-modulo-num-banco-so.md) | **Aceita em 17/09/2026.** Tabelas de módulo opcional: um banco só, `public`, criadas por função provisionadora fixa quando o módulo é instalado |

@@ -7,9 +7,10 @@
 > nem force. Detalhes, divergências deliberadas e checklist pós-sync em [`FORK.md`](FORK.md).
 
 > Contrato portável para **qualquer** agente de código (Codex, Cursor, OpenCode, Antigravity, Copilot).
-> Este arquivo é o núcleo. A **doutrina completa e não-negociável vive em [`CLAUDE.md`](CLAUDE.md)** —
-> leia-o antes de tocar em código. O mapa de toda a documentação está em [`docs/index.md`](docs/index.md).
-> Precedência quando dois documentos discordam: `CLAUDE.md` > `docs/specs/` > `docs/prd/` >
+> Este arquivo é o núcleo. A **doutrina completa e não-negociável vive em `docs/doctrine/`**, com a porta em
+> [`CLAUDE.md`](CLAUDE.md) (ponteiros e regras duras) — leia-os antes de tocar em código. O mapa de toda a
+> documentação está em [`docs/index.md`](docs/index.md).
+> Precedência quando dois documentos discordam: `CLAUDE.md` + `docs/doctrine/` > `docs/specs/` > `docs/prd/` >
 > `HANDOFF-*.md` > `README.md`.
 
 ## Project Overview
@@ -273,7 +274,7 @@ o controlador (`organizations.legal_name`) e o DPO.
 
 - **`supabase/baseline.sql`** — é o que o `install.sh`/`update.sh` do self-host aplicam.
   Toda mudança de schema tem que aparecer aqui **como apêndice idempotente**, senão
-  não chega em quem instalou. Ver doutrina de Migrations em `CLAUDE.md`.
+  não chega em quem instalou. Ver doutrina de Migrations em [`docs/doctrine/migrations-e-banco.md`](docs/doctrine/migrations-e-banco.md).
 - **`supabase/migrations/*.sql` já aplicadas** — nunca edite. Corrija com migration nova.
 - **`lib/supabase/admin.ts`** — service role **bypassa RLS**. Boa parte dos handlers de
   `app/api/**` o usa — reconte em vez de citar:
@@ -405,11 +406,11 @@ cabeçalho passava a mentir por todos eles.
   que originou a discussão, está **fechada** e o título dela descreve um estado que já não vale.
   Quantas existem: `ls tests/e2e/*.spec.ts | wc -l`. Quantas ficam fora:
   `git show origin/main:.github/workflows/e2e.yml | grep -A4 'FORA_DO_CI:'`.
-**Antes de declarar pronto**, siga a **Definition of Done de [`CLAUDE.md`](CLAUDE.md)** — não
+**Antes de declarar pronto**, siga a **Definition of Done de [`docs/doctrine/definition-of-done.md`](docs/doctrine/definition-of-done.md)** — não
 confie na memória, conte lá:
 
 ```bash
-sed -n '/^## Definition of Done/,/^Um staff engineer/p' CLAUDE.md | grep -cE '^[0-9]+\. '
+sed -n '/^## Definition of Done/,/^Um staff engineer/p' docs/doctrine/definition-of-done.md | grep -cE '^[0-9]+\. '
 ```
 
 Em resumo: typecheck/lint zerados, testes relevantes verdes, RLS testada se tocou tabela
@@ -526,7 +527,7 @@ isto, a operação comum continua inteira?** O não-negociável:
 
 ## Critério de conclusão
 
-Vale a **Definition of Done em [`CLAUDE.md`](CLAUDE.md)** — conte lá em vez de confiar num número aqui (`sed -n '/^## Definition of Done/,/^Um staff engineer/p' CLAUDE.md | grep -cE '^[0-9]+\. '`; esta linha já disse 15 quando o DoD tinha 16). A régua tem que DELIMITAR a seção: a primeira versão desta linha oferecia `grep -c '^[0-9]\+\. \*\*' CLAUDE.md`, que devolve **25** — casa toda linha numerada em negrito do arquivo (anti-patterns, packaging, higiene de branches, migrations) e perde os itens 1–10 do próprio DoD, que não são negrito. Trocar o número pelo comando só ajuda se o comando responder à pergunta. Não declare pronto
+Vale a **Definition of Done em [`docs/doctrine/definition-of-done.md`](docs/doctrine/definition-of-done.md)** — conte lá em vez de confiar num número aqui (`sed -n '/^## Definition of Done/,/^Um staff engineer/p' docs/doctrine/definition-of-done.md | grep -cE '^[0-9]+\. '`; esta linha já disse 15 quando o DoD tinha 16). A régua tem que DELIMITAR a seção: a primeira versão desta linha oferecia `grep -c '^[0-9]\+\. \*\*' CLAUDE.md`, que devolve **25** — casa toda linha numerada em negrito do arquivo (anti-patterns, packaging, higiene de branches, migrations) e perde os itens 1–10 do próprio DoD, que não são negrito. Trocar o número pelo comando só ajuda se o comando responder à pergunta. Não declare pronto
 sem: typecheck/lint zerados, testes relevantes verdes, RLS testada se tocou tabela
 tenant-aware, migration (com `-- manifest:`) + baseline se mudou schema, prova visual se mudou UI, e a
 regra de packaging acima se mudou o artefato que o self-hoster instala.
