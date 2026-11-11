@@ -57,7 +57,7 @@ request → proxy.ts (X-Request-Id, x-pathname; isPublicPath? → bypass;
 
 Postgres triggers emit rows into `event_log`. Workers (cron / Realtime listener) consume them and fire side effects. Idempotency via `unique (organization_id, external_id)` + catching `code === '23505'`.
 
-Workers live in `workers/` (`ai-response`, `ai-sentiment`, `rag-indexer`, `media-persist`, `media-derive`, `lgpd-export`, `lgpd-redact`, `storage-cleanup`, `agent-worker`), drained by the 10 endpoints in `app/api/v1/cron/`. Contract: [`docs/specs/07-spec-events-workers.md`](../specs/07-spec-events-workers.md).
+Workers live in `workers/` (`ai-response`, `ai-sentiment`, `rag-indexer`, `media-persist`, `media-derive`, `lgpd-export`, `lgpd-redact`, `storage-cleanup`, `agent-worker`), drained by the endpoints in `app/api/v1/cron/` (`ls app/api/v1/cron` lists them). Contract: [`docs/specs/07-spec-events-workers.md`](../specs/07-spec-events-workers.md).
 
 ## External integrations
 
@@ -75,7 +75,7 @@ Workers live in `workers/` (`ai-response`, `ai-sentiment`, `rag-indexer`, `media
 ## Hardening
 
 - Error boundaries in `app/error.tsx`, `app/app/error.tsx`, `app/(public)/error.tsx`, `app/global-error.tsx` (Sentry capture + visible eventId).
-- Custom 404/403/500/503 pages with canonical copy.
+- Custom pages for 404, 403, 500 and 503 with canonical copy.
 - Loading skeletons on P0 routes.
 - Playwright E2E + axe-core.
 - Details: [`docs/stories/epics/EPIC-12-hardening.md`](../stories/epics/EPIC-12-hardening.md).

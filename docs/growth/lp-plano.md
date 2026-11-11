@@ -25,7 +25,7 @@ Na prática isso separa duas coisas que parecem a mesma:
 | Estado muda quando o scroll chega no ponto que o explica | Elemento entra com fade só porque entrou no viewport |
 | Movimento tem começo e fim ligados a um fato do produto | Movimento contínuo de fundo, decorativo |
 
-**✅ APROVADO por Rafael em 27/07/2026.** Vira um documento novo — `docs/design-system/10-landing-motion.md` — declarando o escopo. Assim não é violação silenciosa da doutrina; é extensão registrada dela. O próprio `09-anti-patterns.md` diz que anti-patterns são o memory bank do design system e devem ser atualizados por PR.
+**✅ APROVADO por Rafael em 27/07/2026.** Vira um documento novo (o `10-landing-motion` do design-system, ainda a escrever) declarando o escopo. Assim não é violação silenciosa da doutrina; é extensão registrada dela. O próprio `09-anti-patterns.md` diz que anti-patterns são o memory bank do design system e devem ser atualizados por PR.
 
 ---
 

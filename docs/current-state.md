@@ -270,7 +270,7 @@ e todos vivem em `docs/handoffs/`, com índice em `docs/handoffs/README.md`. Um 
 ### 4.9 Divergências de estado nos HANDOFFs 🟡
 
 `HANDOFF.md` afirma "Migration seguinte livre: **0058**" e lista pendência de aplicar `0057`
-no dev DB — mas o repo já tem migrations até **0092**. São 34 migrations de deriva. É
+no dev DB — mas o repo já tem migrations até **0092**. São 34 migrations de deriva (2026-07-29). É
 consequência natural de trabalho em branches paralelas, mas ilustra a regra:
 **HANDOFF não é fonte da verdade de schema** — `supabase/migrations/` e `baseline.sql` são.
 **A CONFIRMAR:** se a pendência de dev DB de `0057` ainda existe.

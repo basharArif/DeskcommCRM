@@ -20,8 +20,7 @@ três arquivos aqui **e** o `desenho.ts`; `tests/unit/marca-do-produto.test.tsx`
 que as cores dos dois lados coincidam.
 
 Os READMEs (pt, en, es) usam os arquivos diretamente, num `<picture>` que troca para a
-versão escura conforme o tema do GitHub. A LP (`deskcomm-site`) tem a própria cópia em
-`components/Marca.tsx` e `app/icon.svg`.
+versão escura conforme o tema do GitHub. A LP (`deskcomm-site`) tem a própria cópia, no repositório dela.
 
 Prova pela tela (2026-09-08, Supabase local fresco do `baseline.sql`, marca sem configurar):
 

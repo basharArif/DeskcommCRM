@@ -199,7 +199,7 @@ describe("tabelas de instância da atualização self-service", () => {
 Run: `pnpm test:db 2>&1 | tail -40`
 Expected: FAIL — `system-self-update.test.ts` acusa `toHaveLength(2)` recebendo `0` (as tabelas ainda não existem no baseline aplicado). Se **passar** aqui, algo está errado: você já aplicou o schema antes de rodar, ou o teste não está sendo coletado.
 
-> ⚠️ Não valide com `pnpm test:db | tail` sozinho num `&&` encadeado — o exit code vira o do `tail`. Rode o comando e leia a saída; confirme o veredito pela última linha de sumário do Vitest.
+> ⚠️ Não valide com `pnpm test:db` canalizado para `tail` sozinho num `&&` encadeado — o exit code vira o do `tail`. Rode o comando e leia a saída; confirme o veredito pela última linha de sumário do Vitest.
 
 - [ ] **Step 6: Aplicar o baseline e ver passar**
 

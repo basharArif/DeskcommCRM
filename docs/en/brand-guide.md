@@ -14,7 +14,7 @@ The logotype text is already converted to paths: no file depends on a font.
 
 **These SVGs are the source; the app does NOT read them.** The geometry is copied into `lib/branding/desenho.ts` and drawn inline by `components/branding/MarcaDoProduto.tsx` (sidebar, sign-in facade) and by `app/icon.tsx` (tab icon), and only shows when nobody configured a custom brand (`marcaEhADoProduto`, in `lib/branding.ts`). An `.svg` in `public/` would be served on every reseller's installation, which is the leak `tests/unit/branding.test.ts` exists to prevent. When revising the artwork, update the three files here **and** `desenho.ts`; `tests/unit/marca-do-produto.test.tsx` enforces that the colors on both sides match.
 
-The READMEs (pt, en, es) use the files directly, in a `<picture>` that switches to the dark version per GitHub theme. The landing page (`deskcomm-site`) has its own copy in `components/Marca.tsx` and `app/icon.svg`.
+The READMEs (pt, en, es) use the files directly, in a `<picture>` that switches to the dark version per GitHub theme. The landing page (`deskcomm-site`) has its own copy, in its own repository.
 
 Visual proof (2026-09-08, fresh local Supabase from `baseline.sql`, brand unconfigured):
 

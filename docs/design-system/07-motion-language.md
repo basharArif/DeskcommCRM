@@ -29,7 +29,7 @@ grep -rn 'animate-in\|slide-in-from' components/ui   # deve voltar vazio
 ```
 
 **Por que a transição de página não existe.** O gancho idiomático é um
-`app/app/template.tsx`, que o Next remonta a cada navegação. Ele acrescenta um
+`template.tsx` na pasta `app/app`, que o Next remonta a cada navegação. Ele acrescenta um
 `<div>` entre o `<main>` da casca e a página — e **55 páginas de `app/app/**`
 usam `h-full`, `flex-1` ou `min-h-0` na raiz**, contando com o `<main>` como pai
 direto. Com o wrapper no meio, `h-full` resolve contra um div de altura

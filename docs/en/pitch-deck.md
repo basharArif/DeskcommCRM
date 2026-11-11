@@ -138,7 +138,7 @@ Brazilian e-commerce SMB on **Nuvemshop**:
 
 - ✅ **Active Supabase project in sa-east-1** (`rrydmwnporysaiysiztn`)
 - ✅ **15 tables with RLS** enabled (organizations, contacts, crm_leads, event_log, audit_log, idempotency_keys, etc.)
-- ✅ **3 migrations applied** (platform_base, event_log, customer_360)
+- ✅ **3 migrations applied** (snapshot 2026-04-28) (platform_base, event_log, customer_360)
 - ✅ **Domain triggers** (auto won/lost, denormalized activity, emit events, seed pipeline)
 - ✅ **Canonical RLS helpers** (`fn_user_org_ids`, `fn_is_platform_admin`, `fn_role_at_least`)
 

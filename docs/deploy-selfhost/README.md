@@ -260,7 +260,7 @@ script.
 
 > ⚠️ **Tem de ser URL `http(s)`. Caminho de arquivo NÃO funciona — e falha
 > calado.** O GoTrue cola o que não começa com `http` no fim do `SITE_URL` e faz
-> um GET (`supabase/auth` v2.196.0,
+> um GET (GoTrue v2.196.0,
 > `internal/mailer/templatemailer/template.go:456`). Apontar para
 > `/opt/.../confirmation.html` faz ele buscar
 > `https://SEU_DOMINIO/opt/.../confirmation.html`, receber o HTML da tela de

@@ -642,7 +642,7 @@ Run (cada um DIRETO, sem pipe): `npm run typecheck` → exit 0; `npm run lint` �
 
 - [ ] **Step 2: Preparar cenário real**
 
-1. Subir stack local (`docker compose up -d`, `npm run dev`, worker: `npm run worker:agent` — conferir script exato em `package.json`).
+1. Subir stack local (`docker compose up -d`, `npm run dev`, worker: `pnpm worker`).
 2. Na UI: org de teste com fonte de conhecimento indexada (FAQ com um fato verificável, ex.: "frete grátis acima de R$ 199") e agente publicado com essa KB ativa, vinculado à sessão WAHA conectada.
 
 - [ ] **Step 3: Prova real (protocolo do épico — conversa REAL, nunca número fake)**

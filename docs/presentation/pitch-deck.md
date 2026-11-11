@@ -136,7 +136,7 @@ PME brasileiro de e-commerce na **Nuvemshop**:
 
 - ✅ **Supabase project ativo em sa-east-1** (`rrydmwnporysaiysiztn`)
 - ✅ **15 tabelas com RLS** habilitada (organizations, contacts, crm_leads, event_log, audit_log, idempotency_keys, etc.)
-- ✅ **3 migrations aplicadas** (platform_base, event_log, customer_360)
+- ✅ **3 migrations aplicadas** (snapshot 2026-04-28) (platform_base, event_log, customer_360)
 - ✅ **Triggers de domínio** (auto won/lost, denorm activity, emit events, seed pipeline)
 - ✅ **Helpers RLS canônicos** (`fn_user_org_ids`, `fn_is_platform_admin`, `fn_role_at_least`)
 

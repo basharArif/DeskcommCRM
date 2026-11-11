@@ -381,7 +381,7 @@ senão o domínio passa a responder 404.
 | Webhook não chega | Nginx allowlist bloqueando, ou Cloudflare Proxy ON | `tail -f /var/log/nginx/access.log` + desligar proxy CF |
 | QR expira sempre | RTT alto, ou clock drift no VPS | `timedatectl set-ntp true`, conferir RTT pro `web.whatsapp.com` |
 | Container OOMKilled | Sessões demais pro plano | Upgrade Hostgator pra plano superior, ou particionar tenants em VPS secundário |
-| Session WORKING mas mensagens não saem | Daily limit atingido, ou janela horária | Conferir `channel_sessions.daily_message_limit` + `lib/waha/throttle` |
+| Session WORKING mas mensagens não saem | Daily limit atingido, ou janela horária | Conferir `channel_sessions.daily_message_limit` + `lib/agent-engine/pacing` |
 
 ---
 

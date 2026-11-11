@@ -15,7 +15,7 @@ Em uma única sessão autônoma de ~3 horas, partindo de PRD + Regras de Negóci
 - ✅ **15 diagramas Mermaid** (C4 L1/L2/L3, ER completo, 5 sequence, 3 state machines)
 - ✅ **Pitch deck executivo** PT-BR (15 slides marp-ready)
 - ✅ **Scaffolding completo** Next.js 15 + TypeScript + Tailwind + shadcn/ui (38 arquivos)
-- ✅ **Schema deployado em produção** no Supabase sa-east-1: **31 tabelas com RLS, 7 migrations, 100+ indexes**
+- ✅ **Schema deployado em produção** no Supabase sa-east-1: **31 tabelas com RLS, 7 migrations, 100+ indexes** (snapshot 2026-04-28)
 - ✅ **TypeScript types gerados** do banco (2184 linhas em `lib/database.types.ts`)
 - ✅ **Repositório no GitHub**: https://github.com/melgarafael/DeskcommCRM
 - ✅ **Security advisors** rodados, hardening aplicado (search_path, RLS coverage, anon revoke)
@@ -134,7 +134,7 @@ Tudo decidido durante a sessão autônoma está documentado em:
 
 - **CLAUDE.md** na raiz do projeto — convenções operacionais pra futuras sessões
 - **docs/business-rules/00-business-rules-catalog.md** — 60 regras canônicas com IDs lookup-able
-- **supabase/migrations/MANIFEST.md** — manifesto das 7 migrations aplicadas
+- **supabase/migrations/MANIFEST.md** — manifesto das 7 migrations aplicadas (snapshot 2026-04-28)
 
 ---
 

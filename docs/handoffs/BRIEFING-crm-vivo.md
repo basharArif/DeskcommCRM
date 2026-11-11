@@ -461,7 +461,7 @@ Estas custaram falhas reais nesta entrega. Valem para **todo** script de evidên
    o script deve falhar.
 6. **Se o script disser "board vazio", olhe a tela antes de reportar.** Já aconteceu: o script
    viu zero cards, o board tinha 11.
-7. **Nunca valide com pipe.** `pnpm typecheck | tail` faz o exit code virar o do `tail` — um
+7. **Nunca valide com pipe.** `pnpm typecheck` canalizado para `tail` faz o exit code virar o do `tail` — um
    vermelho passa como verde. Redirecione para arquivo e leia `$?`.
 8. **Comentário não é prova de conformidade.** Já aconteceu de um comentário afirmar "agentes
    na MESMA lista" com o separador logo abaixo. O critério é o código e o pixel.

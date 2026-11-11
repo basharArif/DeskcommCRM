@@ -29,8 +29,8 @@ v1. Backfill é feito por job que decifra com a key antiga e recifra com a nova.
    (`lib/auth/public-paths.ts`), mas nada no repositório coloca a instalação nela.
 2. Gere a nova key local: `openssl rand -base64 32` → `NEW_AES_KEY`.
 3. Mantenha a antiga em mãos como `OLD_AES_KEY`.
-4. Rode o script de rotação (a ser implementado em
-   `scripts/rotate-ai-cred-aes-key.ts` — não existe ainda; ver follow-up):
+4. Rode o script de rotação (ainda não existe: a implementar em
+   scripts, como `rotate-ai-cred-aes-key.ts`; ver follow-up):
    ```bash
    AI_CRED_AES_KEY_OLD=$OLD_AES_KEY \
    AI_CRED_AES_KEY=$NEW_AES_KEY \

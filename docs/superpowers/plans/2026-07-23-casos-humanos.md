@@ -162,14 +162,14 @@ alter table cron_jobs add constraint cron_jobs_job_kind_check
   check (job_kind in ('inbound_turn','followup_turn','watchdog','flywheel','case_reply_turn'));
 ```
 
-- [ ] **Step 2: Aplicar a migration** e provar. Run: `npm run supabase:migrate` (ou `mcp__plugin_supabase_supabase__apply_migration`). Expected: sem erro; `\d agent_cases` e `\d agent_case_events` existem; `select cases_enabled from ai_agent_versions limit 1` funciona.
+- [ ] **Step 2: Aplicar a migration** e provar. Run: `supabase db query --linked` com o arquivo da migration (ou `mcp__plugin_supabase_supabase__apply_migration`). Expected: sem erro; `\d agent_cases` e `\d agent_case_events` existem; `select cases_enabled from ai_agent_versions limit 1` funciona.
 
 - [ ] **Step 3: Refletir no `baseline.sql`** — apêndice idempotente rotulado `-- ---- human cases (migration 0064) ----` com o MESMO conteúdo do Step 1 (todo `if not exists`/`drop..if exists`+create). E linha no `MANIFEST.md` (tabela Applied): `0064 | human_cases | agent_cases + agent_case_events + ai_agent_versions.cases_enabled + CHECKs case_reply_turn`.
 
 - [ ] **Step 4: Provar o baseline num Postgres descartável.**
 Run: subir `pgvector/pgvector:pg17`, aplicar `install` (fresh, `ON_ERROR_STOP=1`) e depois re-aplicar `update` (sem a flag). Expected: ambos passam; re-aplicação não duplica constraint (idempotente).
 
-- [ ] **Step 5: Regenerar types.** Run: `npm run db:types` (regenera `lib/database.types.ts`). Expected: `agent_cases`/`agent_case_events`/`cases_enabled` presentes.
+- [ ] **Step 5: Regenerar types.** Run: `supabase gen types typescript --linked` (regenera `lib/database.types.ts`). Expected: `agent_cases`/`agent_case_events`/`cases_enabled` presentes.
 
 - [ ] **Step 6: GATE + HANDOFF + Commit.** `npm run typecheck` zerado. Alimentar HANDOFF (schema pronto, baseline provado). `git commit -m "feat(casos-humanos): schema agent_cases + eventos + cases_enabled [wave 1]"`
 

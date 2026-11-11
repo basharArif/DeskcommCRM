@@ -365,7 +365,7 @@ A cadeia tem 6 elos. Romper qualquer um exige justificativa em PR.
 ### 5.1 Cadeia
 
 1. **DB schema** → migrations SQL (Spec 01 §2, Spec 02 §2, Spec 03 §3, etc).
-2. **Generated types** → `lib/database.types.ts` (regenerado via `pnpm gen:types` após cada migration; ~2184 linhas hoje).
+2. **Generated types** → `lib/database.types.ts` (regenerado via `supabase gen types typescript` após cada migration; ~2184 linhas hoje).
 3. **Domain aliases** → `lib/types/<entity>.ts` com aliases enxutos.
 4. **Zod schemas** → `lib/schemas/<entity>.ts` com 1 schema por entidade pro boundary das API routes.
 5. **API contracts** → cada API route exporta `request` e `response` types.

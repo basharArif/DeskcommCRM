@@ -975,7 +975,7 @@ jobs:
 
 Fluxo: PR adiciona migration → Preview cria branch Supabase + aplica → merge em `main` aplica em produção. Falha aborta o deploy Vercel via deployment status check.
 
-CI lint suite (separado): `pnpm typecheck && pnpm lint && pnpm test && pnpm test:rls && pnpm test:e2e`. RLS test obrigatório (cria 2 tenants, garante que A não vê B).
+CI lint suite (separado): `pnpm typecheck && pnpm lint && pnpm test:unit && pnpm test:db && pnpm test:e2e`. RLS test obrigatório (cria 2 tenants, garante que A não vê B).
 
 ---
 

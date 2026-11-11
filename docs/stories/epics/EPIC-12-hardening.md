@@ -447,7 +447,7 @@ Targets canônicos: LCP <2.5s p75, CLS <0.1 p75, INP <200ms p75 em produção. B
 3. Converter `<img>` → `next/image` em ContactAvatar, MessageMedia, NuvemshopProductThumb
 4. Configurar `optimizePackageImports` pra phosphor + date-fns (tree-shake)
 5. Lighthouse CI rodando em PR contra preview URL Vercel; assert p75 thresholds
-6. CI step `pnpm analyze:check` falha se bundle inicial /app/inbox >250KB gz
+6. CI step de análise de bundle (script `analyze:check`, a criar) falha se bundle inicial /app/inbox >250KB gz
 
 #### Acceptance Criteria
 
@@ -629,7 +629,7 @@ Coração do hardening. Cinco jornadas críticas modeladas em §02: (1) Operador
 5. **Jornada 3** (AI handoff): seed conversa → bot responde 2x → trigger handoff (sentiment <-0.5 ou keyword "humano") → conversation move pra fila pending humano → agent vê banner HandoffBanner com aria-live=assertive → claim
 6. **Jornada 4** (Onboarding): novo user signup → 5 steps (org info, WAHA connect, primeiro pipeline, convidar team, finish) → cai em /app/inbox com EmptyInbox
 7. **Jornada 5** (LGPD): super-admin recebe data_request via /admin/lgpd → aprova export → worker processa → arquivo zip aparece em Storage com signed URL → audit log + email notification (mock SMTP) verificado
-8. CI workflow: `vercel pull` → `vercel build` → `vercel dev` em background → `pnpm e2e`
+8. CI workflow: `vercel pull` → `vercel build` → `vercel dev` em background → `pnpm test:e2e`
 
 #### Acceptance Criteria
 
@@ -696,7 +696,7 @@ exposes:
 #### Definition of Done
 - [ ] 5 specs passando 3 runs consecutivos
 - [ ] Workflow CI verde
-- [ ] README aponta `pnpm e2e` no quickstart
+- [ ] README aponta `pnpm test:e2e` no quickstart
 - [ ] Commit `test(EPIC-12): e2e playwright 5 journeys [wave 7]`
 
 ---
@@ -819,7 +819,7 @@ Onboarding de novo dev deve completar em 5 minutos: clone → install → .env �
 - `CONTRIBUTING.md` — fluxo de PR, conventional commits, epic-executor usage, code review
 
 #### Files to modify
-- `package.json` — script `dev:fresh` que faz `supabase db reset && pnpm db:seed && pnpm dev` em uma linha
+- `package.json` — script `dev:fresh` (a criar) que faz `supabase db reset`, o seed (a criar) e `pnpm dev` em uma linha
 - `.env.example` — confirmar todas vars necessárias listadas (cross-check com Spec 08 §7.1)
 
 #### Implementation steps (sequential)
@@ -831,7 +831,7 @@ Onboarding de novo dev deve completar em 5 minutos: clone → install → .env �
    cp .env.example .env.local && cat scripts/dev/seed-secrets.sh
    supabase start && supabase db reset
    docker compose -f docker-compose.dev.yml up -d
-   pnpm dev:fresh
+   supabase db reset && pnpm dev
    ```
 3. ARCHITECTURE.md: diagrama mermaid resumido (vide Spec 08 §2.2) + links pra cada Spec/PRD
 4. CONTRIBUTING.md: branch naming `feat/EPIC-NN-slug`, commit `feat(EPIC-NN): title [wave X]`, PR template (criar `.github/PULL_REQUEST_TEMPLATE.md`), epic-executor invoke pattern
@@ -907,7 +907,7 @@ exposes:
 
 #### Implementation steps (sequential)
 1. Smoke specs separados de E2E suite — leves (<2 min total), rodam contra URL externa (`PLAYWRIGHT_BASE_URL` env)
-2. Workflow `preview-smoke.yml` listen em `deployment_status` event onde `state=success` → roda `pnpm smoke` com BASE_URL=preview URL
+2. Workflow `preview-smoke.yml` listen em `deployment_status` event onde `state=success` → roda o subset de smoke (script `smoke`, a criar) com BASE_URL=preview URL
 3. `/api/health` retorna 200 com `{ status: "ok", deps: { supabase: "ok", upstash: "ok", waha: "ok|degraded", sentry: "ok" }, version: <git sha> }`; smoke só passa se `status=ok`
 4. Checklist pré-go-live (markdown verificável): env vars production setadas (lista §7.1), secrets rotacionados (Sentry token, Supabase service role, encryption keys), backup verificado (último restore drill em staging), monitoring (Sentry + Vercel Analytics), DNS configurado (`app.deskcomm.com.br` + `admin.`), TLS válido, status page criada, runbooks acessíveis pra on-call, MFA forçado pra super-admin, LGPD política publicada
 5. Rafael (humano) executa checklist antes de promover staging→prod

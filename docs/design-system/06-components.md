@@ -225,7 +225,7 @@ Wrapper sobre Radix ScrollArea. Use SEMPRE em listas longas (inbox, kanban col).
 
 # Componentes custom DeskcommCRM
 
-Componentes específicos do produto. Especificação detalhada em **Spec 04 §6** (`docs/specs/04-presentation.md`); resumo abaixo.
+Componentes específicos do produto. Especificação detalhada em **Spec 04 §6** (`docs/specs/04-spec-pipeline-attendance.md`); resumo abaixo.
 
 ## ConversationItem
 
