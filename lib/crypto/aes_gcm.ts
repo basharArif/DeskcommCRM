@@ -73,7 +73,7 @@ export function decryptKey(input: {
 }): string {
   const { ciphertext, iv, tag } = input;
   const key = getKey();
-  const decipher = createDecipheriv("aes-256-gcm", key, iv);
+  const decipher = createDecipheriv("aes-256-gcm", key, iv, { authTagLength: TAG_LENGTH_BYTES });
   decipher.setAuthTag(tag);
   const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
   return plaintext.toString("utf8");
